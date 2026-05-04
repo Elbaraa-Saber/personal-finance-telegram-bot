@@ -8,6 +8,8 @@ import { TransactionService } from "./application/services/transaction.service";
 import { registerTransactionCommands } from "./bot/commands/transaction.command";
 import { registerReportCommand } from "./bot/commands/report.command";
 import { ReportService } from "./application/services/report.service";
+import { registerHistoryCommand } from "./bot/commands/history.command";
+import { HistoryService } from "./application/services/history.service";
 
 async function main(): Promise<void> {
   await connectToDatabase();
@@ -28,11 +30,17 @@ async function main(): Promise<void> {
     userRepository
   );
 
+  const historyService = new HistoryService(
+    transactionRepository,
+    userRepository
+  );
+
 
   registerStartCommand(bot, userService);
   registerTransactionCommands(bot, transactionService);
   registerReportCommand(bot, reportService);
-  
+  registerHistoryCommand(bot, historyService);
+
   bot.start({
     onStart: () => {
       console.log("🤖 Bot is running...");

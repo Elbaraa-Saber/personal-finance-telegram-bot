@@ -25,6 +25,16 @@ export class TransactionRepository {
     return TransactionModel.create(data);
   }
 
+    async findRecentByUserId(
+        userId: Types.ObjectId,
+        limit: number
+    ): Promise<TransactionDocument[]> {
+        return TransactionModel.find({ userId })
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .exec();
+    }
+
   async getSummaryByUserId(userId: Types.ObjectId): Promise<TransactionSummary> {
     const result = await TransactionModel.aggregate<{
       totalIncome: number;
