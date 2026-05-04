@@ -15,6 +15,7 @@
     "dotenv": "^17.4.2",
     "grammy": "^1.42.0",
     "mogoose": "^0.0.1-security",
+    "mongoose": "^9.6.1",
     "socks-proxy-agent": "^10.0.0"
   },
   "devDependencies": {
