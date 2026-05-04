@@ -6,6 +6,8 @@ import { connectToDatabase } from "./infrastructure/database/mongoose";
 import { TransactionRepository } from "./infrastructure/repositories/transaction.repository";
 import { TransactionService } from "./application/services/transaction.service";
 import { registerTransactionCommands } from "./bot/commands/transaction.command";
+import { registerReportCommand } from "./bot/commands/report.command";
+import { ReportService } from "./application/services/report.service";
 
 async function main(): Promise<void> {
   await connectToDatabase();
@@ -21,9 +23,16 @@ async function main(): Promise<void> {
     userRepository
   );
 
+  const reportService = new ReportService(
+    transactionRepository,
+    userRepository
+  );
+
+
   registerStartCommand(bot, userService);
   registerTransactionCommands(bot, transactionService);
-
+  registerReportCommand(bot, reportService);
+  
   bot.start({
     onStart: () => {
       console.log("🤖 Bot is running...");
