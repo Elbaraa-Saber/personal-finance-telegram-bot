@@ -7,7 +7,7 @@ export function createBot(): Bot {
     ? {
         client: {
           baseFetchConfig: {
-            agent: new SocksProxyAgent(config.socksProxyUrl),
+            agent: new SocksProxyAgent(config.socksProxyUrl!),
             compress: true,
           } as any,
         },
