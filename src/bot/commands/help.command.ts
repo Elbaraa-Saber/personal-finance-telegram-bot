@@ -1,7 +1,9 @@
 import { Bot } from "grammy";
 import { createMainMenuKeyboard } from "../keyboards/main-menu.keyboard";
+import { config } from "../../config/env";
 
-const helpMessage = `
+function createHelpMessage(): string{
+  return`
 👋 أهلاً بك في بوت إدارة المصاريف
 
 الأوامر المتاحة:
@@ -76,11 +78,13 @@ ____________________________________________________
 - المبلغ يجب أن يكون رقمًا أكبر من صفر.
 - التصنيف يكون كلمة واحدة مثل: food, salary, transport.
 - يمكنك كتابة ملاحظة بعد التصنيف.
+- العملة الحالية: ${config.defaultCurrency}
 `.trim();
+}
 
 export function registerHelpCommand(bot: Bot): void {
   bot.command("help", async (ctx) => {
-    await ctx.reply(helpMessage, {
+    await ctx.reply(createHelpMessage(), {
       reply_markup: createMainMenuKeyboard(),
     });
   });

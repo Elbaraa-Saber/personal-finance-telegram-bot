@@ -18,6 +18,7 @@ export const config = {
 
   useProxy: process.env.USE_PROXY === "true",
   socksProxyUrl: process.env.SOCKS_PROXY_URL,
+  defaultCurrency: process.env.DEFAULT_CURRENCY ?? "RUB",
 };
 
 if (config.useProxy && !config.socksProxyUrl) {
