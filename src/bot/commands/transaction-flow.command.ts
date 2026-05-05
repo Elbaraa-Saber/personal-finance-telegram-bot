@@ -8,12 +8,14 @@ import {
   getMainMenuButtonTexts,
   isMainMenuButtonText,
 } from "../keyboards/main-menu.keyboard";
-
 import { formatCreatedTransaction } from "../formatters/transaction.formatter";
 import {
-  cancelFlowButton,
   createCancelFlowKeyboard,
+  getCancelFlowButtonTexts,
+  isCancelFlowButtonText,
 } from "../keyboards/cancel-flow.keyboard";
+import { getMessages } from "../i18n/translations";
+import { defaultLanguage, SupportedLanguage } from "../i18n/language";
 
 function parseAmount(text: string): number | null {
   const amount = Number(text.replace(",", "."));
@@ -28,7 +30,11 @@ function parseAmount(text: string): number | null {
 function isSkipText(text: string): boolean {
   const normalizedText = text.trim().toLowerCase();
 
-  return normalizedText === "-" || normalizedText === "skip" || normalizedText === "لا";
+  return (
+    normalizedText === "-" ||
+    normalizedText === "skip" ||
+    normalizedText === "لا"
+  );
 }
 
 function parseDate(text: string): Date | null {
@@ -60,27 +66,54 @@ function parseDate(text: string): Date | null {
   return isValidDate ? date : null;
 }
 
-function getTransactionLabel(type: TransactionType): string {
-  return type === "income" ? "دخل" : "مصروف";
+function getTransactionLabel(
+  type: TransactionType,
+  language: SupportedLanguage
+): string {
+  const messages = getMessages(language);
+
+  return type === "income"
+    ? messages.transaction.income
+    : messages.transaction.expense;
+}
+
+async function getLanguageForContext(
+  ctx: BotContext,
+  userService: UserService
+): Promise<SupportedLanguage> {
+  const telegramUser = ctx.from;
+
+  if (!telegramUser) {
+    return defaultLanguage;
+  }
+
+  return userService.getUserLanguage(telegramUser.id);
 }
 
 async function startTransactionFlow(
   ctx: BotContext,
-  type: TransactionType
+  type: TransactionType,
+  userService: UserService
 ): Promise<void> {
+  const telegramUser = ctx.from;
+
+  if (!telegramUser) {
+    await ctx.reply(getMessages().transactionFlow.readUserError);
+    return;
+  }
+
+  const language = await userService.getUserLanguage(telegramUser.id);
+  const messages = getMessages(language);
+  const label = getTransactionLabel(type, language);
+
   ctx.session.pendingTransaction = {
     type,
     step: "amount",
   };
 
-  await ctx.reply(
-    `حسنًا، سنضيف ${getTransactionLabel(type)}.\n\n` +
-      "اكتب المبلغ فقط، مثال:\n" +
-      "1500",
-    {
-        reply_markup: createCancelFlowKeyboard(),
-    }
-  );
+  await ctx.reply(messages.transactionFlow.start(label), {
+    reply_markup: createCancelFlowKeyboard(language),
+  });
 }
 
 async function cancelTransactionFlow(
@@ -88,9 +121,10 @@ async function cancelTransactionFlow(
   userService: UserService
 ): Promise<void> {
   const language = await getLanguageForContext(ctx, userService);
+  const messages = getMessages(language);
 
   if (!ctx.session.pendingTransaction) {
-    await ctx.reply("لا توجد عملية جارية لإلغائها.", {
+    await ctx.reply(messages.transactionFlow.noActiveFlow, {
       reply_markup: createMainMenuKeyboard(language),
     });
     return;
@@ -98,7 +132,7 @@ async function cancelTransactionFlow(
 
   ctx.session.pendingTransaction = null;
 
-  await ctx.reply("تم إلغاء العملية الحالية.", {
+  await ctx.reply(messages.transactionFlow.cancelled, {
     reply_markup: createMainMenuKeyboard(language),
   });
 }
@@ -108,34 +142,22 @@ function isCommandText(text: string): boolean {
 }
 
 function shouldBlockDuringTransactionFlow(text: string): boolean {
-  if (text === cancelFlowButton) {
+  if (isCancelFlowButtonText(text)) {
     return false;
   }
 
   return isCommandText(text) || isMainMenuButtonText(text);
 }
 
-async function replyWithActiveFlowWarning(ctx: BotContext): Promise<void> {
-  await ctx.reply(
-    "لديك عملية إضافة جارية الآن.\n\n" +
-      "أكمل الخطوة الحالية أو اضغط ❌ إلغاء العملية.",
-    {
-      reply_markup: createCancelFlowKeyboard(),
-    }
-  );
-}
-
-async function getLanguageForContext(
+async function replyWithActiveFlowWarning(
   ctx: BotContext,
-  userService: UserService
-) {
-  const telegramUser = ctx.from;
+  language: SupportedLanguage
+): Promise<void> {
+  const messages = getMessages(language);
 
-  if (!telegramUser) {
-    return undefined;
-  }
-
-  return userService.getUserLanguage(telegramUser.id);
+  await ctx.reply(messages.transactionFlow.activeFlowWarning, {
+    reply_markup: createCancelFlowKeyboard(language),
+  });
 }
 
 export function registerTransactionFlowCommand(
@@ -144,19 +166,19 @@ export function registerTransactionFlowCommand(
   userService: UserService
 ): void {
   bot.hears(getMainMenuButtonTexts("addIncome"), async (ctx) => {
-    await startTransactionFlow(ctx, "income");
+    await startTransactionFlow(ctx, "income", userService);
   });
 
   bot.hears(getMainMenuButtonTexts("addExpense"), async (ctx) => {
-    await startTransactionFlow(ctx, "expense");
+    await startTransactionFlow(ctx, "expense", userService);
   });
 
   bot.command("cancel", async (ctx) => {
     await cancelTransactionFlow(ctx, userService);
   });
 
-  bot.hears(cancelFlowButton, async (ctx) => {
-        await cancelTransactionFlow(ctx, userService);
+  bot.hears(getCancelFlowButtonTexts(), async (ctx) => {
+    await cancelTransactionFlow(ctx, userService);
   });
 
   bot.on("message:text", async (ctx, next) => {
@@ -167,31 +189,35 @@ export function registerTransactionFlowCommand(
       return;
     }
 
+    const telegramUser = ctx.from;
+
+    if (!telegramUser) {
+      ctx.session.pendingTransaction = null;
+      await ctx.reply(getMessages().transactionFlow.readUserError);
+      return;
+    }
+
+    const language = await userService.getUserLanguage(telegramUser.id);
+    const messages = getMessages(language);
     const text = ctx.message.text.trim();
 
-    if (text === "/cancel" || text === cancelFlowButton) {
+    if (text === "/cancel" || isCancelFlowButtonText(text)) {
       await cancelTransactionFlow(ctx, userService);
       return;
     }
 
     if (shouldBlockDuringTransactionFlow(text)) {
-        await replyWithActiveFlowWarning(ctx);
-        return;
+      await replyWithActiveFlowWarning(ctx, language);
+      return;
     }
-    
+
     if (pendingTransaction.step === "amount") {
       const amount = parseAmount(text);
 
       if (!amount) {
-        await ctx.reply(
-          "المبلغ غير صحيح.\n\n" +
-            "اكتب رقمًا أكبر من صفر، مثال:\n" +
-            "1500\n\n" +
-            "أو اكتب /cancel للإلغاء.",
-            {
-                reply_markup: createCancelFlowKeyboard(),
-            }
-        );
+        await ctx.reply(messages.transactionFlow.invalidAmount, {
+          reply_markup: createCancelFlowKeyboard(language),
+        });
         return;
       }
 
@@ -201,21 +227,17 @@ export function registerTransactionFlowCommand(
         step: "category",
       };
 
-      await ctx.reply(
-        "اكتب التصنيف، مثال:\n" +
-          "salary\n" +
-          "food\n" +
-          "transport",
-            {
-                reply_markup: createCancelFlowKeyboard(),
-            }
-      );
+      await ctx.reply(messages.transactionFlow.askCategory, {
+        reply_markup: createCancelFlowKeyboard(language),
+      });
       return;
     }
 
     if (pendingTransaction.step === "category") {
       if (!text) {
-        await ctx.reply("التصنيف لا يمكن أن يكون فارغًا.");
+        await ctx.reply(messages.transactionFlow.emptyCategory, {
+          reply_markup: createCancelFlowKeyboard(language),
+        });
         return;
       }
 
@@ -225,14 +247,9 @@ export function registerTransactionFlowCommand(
         step: "date",
       };
 
-      await ctx.reply(
-        "اكتب تاريخ العملية بصيغة YYYY-MM-DD، مثال:\n" +
-          "2026-05-05\n\n" +
-          "أو اكتب - لاستخدام تاريخ اليوم.",
-            {
-                reply_markup: createCancelFlowKeyboard(),
-            }
-      );
+      await ctx.reply(messages.transactionFlow.askDate, {
+        reply_markup: createCancelFlowKeyboard(language),
+      });
       return;
     }
 
@@ -243,24 +260,18 @@ export function registerTransactionFlowCommand(
           step: "note",
         };
 
-        await ctx.reply(
-          "اكتب ملاحظة للعملية، أو اكتب - بدون ملاحظة.",
-            {
-                reply_markup: createCancelFlowKeyboard(),
-            }
-        );
+        await ctx.reply(messages.transactionFlow.askNote, {
+          reply_markup: createCancelFlowKeyboard(language),
+        });
         return;
       }
 
       const transactionDate = parseDate(text);
 
       if (!transactionDate) {
-        await ctx.reply(
-          "صيغة التاريخ غير صحيحة.\n\n" +
-            "اكتب التاريخ بهذا الشكل:\n" +
-            "2026-05-05\n\n" +
-            "أو اكتب - لاستخدام تاريخ اليوم."
-        );
+        await ctx.reply(messages.transactionFlow.invalidDate, {
+          reply_markup: createCancelFlowKeyboard(language),
+        });
         return;
       }
 
@@ -270,9 +281,9 @@ export function registerTransactionFlowCommand(
         step: "note",
       };
 
-      await ctx.reply(
-        "اكتب ملاحظة للعملية، أو اكتب - بدون ملاحظة."
-      );
+      await ctx.reply(messages.transactionFlow.askNote, {
+        reply_markup: createCancelFlowKeyboard(language),
+      });
       return;
     }
 
@@ -282,7 +293,10 @@ export function registerTransactionFlowCommand(
 
       if (!amount || !category) {
         ctx.session.pendingTransaction = null;
-        await ctx.reply("حدث خطأ في بيانات العملية. ابدأ من جديد.");
+
+        await ctx.reply(messages.transactionFlow.dataError, {
+          reply_markup: createMainMenuKeyboard(language),
+        });
         return;
       }
 
@@ -292,7 +306,7 @@ export function registerTransactionFlowCommand(
 
       try {
         const transaction = await transactionService.addTransaction({
-          telegramId: ctx.from.id,
+          telegramId: telegramUser.id,
           type: pendingTransaction.type,
           amount,
           category,
@@ -302,10 +316,8 @@ export function registerTransactionFlowCommand(
 
         ctx.session.pendingTransaction = null;
 
-        const language = await userService.getUserLanguage(ctx.from.id);
-
-        await ctx.reply(formatCreatedTransaction(transaction), {
-        reply_markup: createMainMenuKeyboard(language),
+        await ctx.reply(formatCreatedTransaction(transaction, language), {
+          reply_markup: createMainMenuKeyboard(language),
         });
       } catch (error) {
         ctx.session.pendingTransaction = null;
@@ -314,9 +326,9 @@ export function registerTransactionFlowCommand(
           error instanceof Error ? error.message : "حدث خطأ غير متوقع.";
 
         await ctx.reply(`❌ ${message}`, {
-            reply_markup: createMainMenuKeyboard(),
-        });      }
+          reply_markup: createMainMenuKeyboard(language),
+        });
+      }
     }
   });
 }
-

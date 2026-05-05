@@ -46,18 +46,25 @@ export function formatDeletedTransaction(
 }
 
 export function formatCreatedTransaction(
-  transaction: TransactionDocument
+  transaction: TransactionDocument,
+  language: SupportedLanguage
 ): string {
-  const label = transaction.type === "income" ? "دخل" : "مصروف";
+  const messages = getMessages(language);
+
+  const label =
+    transaction.type === "income"
+      ? messages.transaction.income
+      : messages.transaction.expense;
+
   const noteText = transaction.note
-    ? `\n📝 الملاحظة: ${transaction.note}`
+    ? `\n📝 ${messages.transaction.note}: ${transaction.note}`
     : "";
 
   return (
-    `✅ تم إضافة ${label} بنجاح\n\n` +
-    `💰 المبلغ: ${formatAmount(transaction.amount)}\n` +
-    `🏷 التصنيف: ${transaction.category}\n` +
-    `📅 التاريخ: ${formatDate(transaction.transactionDate)}` +
+    `✅ ${label} added successfully\n\n` +
+    `💰 ${formatAmount(transaction.amount)}\n` +
+    `🏷 ${transaction.category}\n` +
+    `📅 ${formatDate(transaction.transactionDate)}` +
     noteText
   );
 }
