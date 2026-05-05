@@ -1,5 +1,6 @@
 import { Bot } from "grammy";
 import { UserService } from "../../application/services/user.service";
+import { createMainMenuKeyboard } from "../keyboards/main-menu.keyboard";
 
 type RegisterTelegramUserData = {
   telegramId: number;
@@ -33,7 +34,12 @@ export function registerStartCommand(bot: Bot, userService: UserService): void {
     await userService.registerTelegramUser(userData);
 
     await ctx.reply(
-      "أهلًا بك 👋\nتم تسجيلك في بوت المصاريف.\n\nالخطوة القادمة: إضافة الدخل والمصاريف."
+      "أهلًا بك 👋\n" +
+      "تم تسجيلك في بوت المصاريف.\n\n" +
+      "استخدم الأزرار بالأسفل أو اكتب /help لعرض الأوامر.",
+      {
+        reply_markup: createMainMenuKeyboard(),
+      }
     );
   });
 }

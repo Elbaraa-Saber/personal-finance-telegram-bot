@@ -12,6 +12,7 @@ import { registerHistoryCommand } from "./bot/commands/history.command";
 import { HistoryService } from "./application/services/history.service";
 import { registerDeleteLastCommand } from "./bot/commands/delete-last.command";
 import { registerHelpCommand } from "./bot/commands/help.command";
+import { registerMenuCommandHandlers } from "./bot/commands/menu.command";
 
 async function main(): Promise<void> {
   await connectToDatabase();
@@ -43,6 +44,7 @@ async function main(): Promise<void> {
   registerHistoryCommand(bot, historyService);
   registerDeleteLastCommand(bot, transactionService);
   registerHelpCommand(bot);
+  registerMenuCommandHandlers(bot, reportService, historyService);
 
   bot.start({
     onStart: () => {

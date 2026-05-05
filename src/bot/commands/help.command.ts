@@ -1,4 +1,5 @@
 import { Bot } from "grammy";
+import { createMainMenuKeyboard } from "../keyboards/main-menu.keyboard";
 
 const helpMessage = `
 👋 أهلاً بك في بوت إدارة المصاريف
@@ -79,6 +80,8 @@ ____________________________________________________
 
 export function registerHelpCommand(bot: Bot): void {
   bot.command("help", async (ctx) => {
-    await ctx.reply(helpMessage);
+    await ctx.reply(helpMessage, {
+      reply_markup: createMainMenuKeyboard(),
+    });
   });
 }
