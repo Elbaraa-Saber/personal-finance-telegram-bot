@@ -8,6 +8,7 @@ export const mainMenuButtons = {
   reportYear: "📈 تقرير السنة",
   history: "🧾 آخر العمليات",
   help: "ℹ️ المساعدة",
+  deleteLast: "🗑 حذف آخر عملية",
 } as const;
 
 export function createMainMenuKeyboard(): Keyboard {
@@ -22,5 +23,6 @@ export function createMainMenuKeyboard(): Keyboard {
     .text(mainMenuButtons.history)
     .row()
     .text(mainMenuButtons.help)
+    .text(mainMenuButtons.deleteLast)
     .resized();
 }
