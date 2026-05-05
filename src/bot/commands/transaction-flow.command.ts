@@ -17,6 +17,13 @@ import {
 import { getMessages } from "../i18n/translations";
 import { defaultLanguage, SupportedLanguage } from "../i18n/language";
 
+type ParsedTransactionLine = {
+  amount: number;
+  category: string;
+  note?: string;
+  transactionDate?: Date;
+};
+
 function parseAmount(text: string): number | null {
   const amount = Number(text.replace(",", "."));
 
@@ -25,16 +32,6 @@ function parseAmount(text: string): number | null {
   }
 
   return amount;
-}
-
-function isSkipText(text: string): boolean {
-  const normalizedText = text.trim().toLowerCase();
-
-  return (
-    normalizedText === "-" ||
-    normalizedText === "skip" ||
-    normalizedText === "لا"
-  );
 }
 
 function parseDate(text: string): Date | null {
@@ -64,6 +61,54 @@ function parseDate(text: string): Date | null {
     date.getUTCDate() === day;
 
   return isValidDate ? date : null;
+}
+
+function isDateText(text: string | undefined): text is string {
+  return typeof text === "string" && /^\d{4}-\d{2}-\d{2}$/.test(text);
+}
+
+function parseTransactionLine(text: string): ParsedTransactionLine | null {
+  const parts = text.trim().split(/\s+/);
+
+  const amountText = parts[0];
+  const category = parts[1];
+
+  if (!amountText || !category) {
+    return null;
+  }
+
+  const amount = parseAmount(amountText);
+
+  if (!amount) {
+    return null;
+  }
+
+  const possibleDate = parts[2];
+
+  if (isDateText(possibleDate)) {
+    const transactionDate = parseDate(possibleDate);
+
+    if (!transactionDate) {
+      return null;
+    }
+
+    const noteParts = parts.slice(3);
+
+    return {
+      amount,
+      category,
+      transactionDate,
+      ...(noteParts.length > 0 ? { note: noteParts.join(" ") } : {}),
+    };
+  }
+
+  const noteParts = parts.slice(2);
+
+  return {
+    amount,
+    category,
+    ...(noteParts.length > 0 ? { note: noteParts.join(" ") } : {}),
+  };
 }
 
 function getTransactionLabel(
@@ -98,7 +143,7 @@ async function startTransactionFlow(
   const telegramUser = ctx.from;
 
   if (!telegramUser) {
-    await ctx.reply(getMessages().transactionFlow.readUserError);
+    await ctx.reply(getMessages().common.readUserError);
     return;
   }
 
@@ -108,7 +153,6 @@ async function startTransactionFlow(
 
   ctx.session.pendingTransaction = {
     type,
-    step: "amount",
   };
 
   await ctx.reply(messages.transactionFlow.start(label), {
@@ -193,7 +237,7 @@ export function registerTransactionFlowCommand(
 
     if (!telegramUser) {
       ctx.session.pendingTransaction = null;
-      await ctx.reply(getMessages().transactionFlow.readUserError);
+      await ctx.reply(getMessages().common.readUserError);
       return;
     }
 
@@ -212,124 +256,41 @@ export function registerTransactionFlowCommand(
       return;
     }
 
-    if (pendingTransaction.step === "amount") {
-      const amount = parseAmount(text);
+    const parsedTransaction = parseTransactionLine(text);
 
-      if (!amount) {
-        await ctx.reply(messages.transactionFlow.invalidAmount, {
-          reply_markup: createCancelFlowKeyboard(language),
-        });
-        return;
-      }
-
-      ctx.session.pendingTransaction = {
-        ...pendingTransaction,
-        amount,
-        step: "category",
-      };
-
-      await ctx.reply(messages.transactionFlow.askCategory, {
+    if (!parsedTransaction) {
+      await ctx.reply(messages.transactionFlow.invalidAmount, {
         reply_markup: createCancelFlowKeyboard(language),
       });
       return;
     }
 
-    if (pendingTransaction.step === "category") {
-      if (!text) {
-        await ctx.reply(messages.transactionFlow.emptyCategory, {
-          reply_markup: createCancelFlowKeyboard(language),
-        });
-        return;
-      }
-
-      ctx.session.pendingTransaction = {
-        ...pendingTransaction,
-        category: text,
-        step: "date",
-      };
-
-      await ctx.reply(messages.transactionFlow.askDate, {
-        reply_markup: createCancelFlowKeyboard(language),
+    try {
+      const transaction = await transactionService.addTransaction({
+        telegramId: telegramUser.id,
+        type: pendingTransaction.type,
+        amount: parsedTransaction.amount,
+        category: parsedTransaction.category,
+        ...(parsedTransaction.note ? { note: parsedTransaction.note } : {}),
+        ...(parsedTransaction.transactionDate
+          ? { transactionDate: parsedTransaction.transactionDate }
+          : {}),
       });
-      return;
-    }
 
-    if (pendingTransaction.step === "date") {
-      if (isSkipText(text)) {
-        ctx.session.pendingTransaction = {
-          ...pendingTransaction,
-          step: "note",
-        };
+      ctx.session.pendingTransaction = null;
 
-        await ctx.reply(messages.transactionFlow.askNote, {
-          reply_markup: createCancelFlowKeyboard(language),
-        });
-        return;
-      }
-
-      const transactionDate = parseDate(text);
-
-      if (!transactionDate) {
-        await ctx.reply(messages.transactionFlow.invalidDate, {
-          reply_markup: createCancelFlowKeyboard(language),
-        });
-        return;
-      }
-
-      ctx.session.pendingTransaction = {
-        ...pendingTransaction,
-        transactionDateText: text,
-        step: "note",
-      };
-
-      await ctx.reply(messages.transactionFlow.askNote, {
-        reply_markup: createCancelFlowKeyboard(language),
+      await ctx.reply(formatCreatedTransaction(transaction, language, currency), {
+        reply_markup: createMainMenuKeyboard(language),
       });
-      return;
-    }
+    } catch (error) {
+      ctx.session.pendingTransaction = null;
 
-    if (pendingTransaction.step === "note") {
-      const amount = pendingTransaction.amount;
-      const category = pendingTransaction.category;
+      const message =
+        error instanceof Error ? error.message : messages.common.unexpectedError;
 
-      if (!amount || !category) {
-        ctx.session.pendingTransaction = null;
-
-        await ctx.reply(messages.transactionFlow.dataError, {
-          reply_markup: createMainMenuKeyboard(language),
-        });
-        return;
-      }
-
-      const transactionDate = pendingTransaction.transactionDateText
-        ? parseDate(pendingTransaction.transactionDateText)
-        : null;
-
-      try {
-        const transaction = await transactionService.addTransaction({
-          telegramId: telegramUser.id,
-          type: pendingTransaction.type,
-          amount,
-          category,
-          ...(transactionDate ? { transactionDate } : {}),
-          ...(!isSkipText(text) ? { note: text } : {}),
-        });
-
-        ctx.session.pendingTransaction = null;
-
-        await ctx.reply(formatCreatedTransaction(transaction, language, currency), {
-          reply_markup: createMainMenuKeyboard(language),
-        });
-      } catch (error) {
-        ctx.session.pendingTransaction = null;
-
-        const message =
-            error instanceof Error ? error.message : messages.common.unexpectedError;
-
-        await ctx.reply(`❌ ${message}`, {
-          reply_markup: createMainMenuKeyboard(language),
-        });
-      }
+      await ctx.reply(`❌ ${message}`, {
+        reply_markup: createMainMenuKeyboard(language),
+      });
     }
   });
 }

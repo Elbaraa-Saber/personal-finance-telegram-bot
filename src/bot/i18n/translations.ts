@@ -195,48 +195,39 @@ export const translations: Record<SupportedLanguage, Messages> = {
     transactionFlow: {
         start: (type: string) =>
             `حسنًا، سنضيف ${type}.\n\n` +
-            "اكتب المبلغ فقط، مثال:\n" +
-            "1500",
+            "اكتب العملية في سطر واحد، مثال:\n" +
+            "1500 راتب\n\n" +
+            "اختياريًا يمكنك إضافة التاريخ والملاحظة:\n" +
+            "1500 التصنيف السنة-الشهر-اليوم  الملاحظة \n\n" +
+            "صيغة التاريخ: YYYY-MM-DD",
 
-        askCategory:
-            "اكتب التصنيف، مثال:\n" +
-            "salary\n" +
-            "food\n" +
-            "transport",
-
-        askDate:
-            "اكتب تاريخ العملية بصيغة YYYY-MM-DD، مثال:\n" +
-            "2026-05-05\n\n" +
-            "أو اكتب - لاستخدام تاريخ اليوم.",
-
-        askNote: "اكتب ملاحظة للعملية، أو اكتب - بدون ملاحظة.",
+        askCategory: "",
+        askDate: "",
+        askNote: "",
 
         invalidAmount:
-            "المبلغ غير صحيح.\n\n" +
-            "اكتب رقمًا أكبر من صفر، مثال:\n" +
-            "1500\n\n" +
+            "الصيغة غير صحيحة.\n\n" +
+            "اكتب العملية بهذا الشكل:\n" +
+            "1500 راتب\n\n" +
+            "أو مع التاريخ والملاحظة:\n" +
+            "1500 التصنيف YYYY-MM-DD الملاحظة\n\n" +
             "أو اكتب /cancel للإلغاء.",
 
         invalidDate:
             "صيغة التاريخ غير صحيحة.\n\n" +
             "اكتب التاريخ بهذا الشكل:\n" +
-            "2026-05-05\n\n" +
-            "أو اكتب - لاستخدام تاريخ اليوم.",
+            "YYYY-MM-DD",
 
         emptyCategory: "التصنيف لا يمكن أن يكون فارغًا.",
-
         noActiveFlow: "لا توجد عملية جارية لإلغائها.",
-
         cancelled: "تم إلغاء العملية الحالية.",
 
         activeFlowWarning:
             "لديك عملية إضافة جارية الآن.\n\n" +
-            "أكمل الخطوة الحالية أو اضغط ❌ إلغاء العملية.",
+            "اكتب العملية في سطر واحد أو اضغط زر الإلغاء.",
 
         dataError: "حدث خطأ في بيانات العملية. ابدأ من جديد.",
-
         readUserError: "لم أستطع قراءة بيانات المستخدم.",
-
         cancelButton: "❌ إلغاء العملية",
     },
     delete: {
@@ -406,48 +397,38 @@ export const translations: Record<SupportedLanguage, Messages> = {
     transactionFlow: {
         start: (type: string) =>
             `Хорошо, добавим ${type}.\n\n` +
-            "Введите только сумму, например:\n" +
-            "1500",
+            "Введите операцию одной строкой, например:\n" +
+            "1500 зарплата\n\n" +
+            "Дополнительно можно указать дату и примечание:\n" +
+            "1500 категория YYYY-MM-DD примечание\n",
 
-        askCategory:
-            "Введите категорию, например:\n" +
-            "salary\n" +
-            "food\n" +
-            "transport",
-
-        askDate:
-            "Введите дату операции в формате YYYY-MM-DD, например:\n" +
-            "2026-05-05\n\n" +
-            "Или введите -, чтобы использовать сегодняшнюю дату.",
-
-        askNote: "Введите примечание к операции или введите -, если примечания нет.",
+        askCategory: "",
+        askDate: "",
+        askNote: "",
 
         invalidAmount:
-            "Некорректная сумма.\n\n" +
-            "Введите число больше нуля, например:\n" +
-            "1500\n\n" +
+            "Некорректный формат.\n\n" +
+            "Введите операцию так:\n" +
+            "1500 salary\n\n" +
+            "Или с датой и примечанием:\n" +
+            "1500 категория YYYY-MM-DD примечание\n\n" +
             "Или введите /cancel для отмены.",
 
         invalidDate:
             "Некорректный формат даты.\n\n" +
             "Введите дату так:\n" +
-            "2026-05-05\n\n" +
-            "Или введите -, чтобы использовать сегодняшнюю дату.",
+            "YYYY-MM-DD",
 
         emptyCategory: "Категория не может быть пустой.",
-
         noActiveFlow: "Нет активной операции для отмены.",
-
         cancelled: "Текущая операция отменена.",
 
         activeFlowWarning:
             "Сейчас у вас есть незавершённое добавление операции.\n\n" +
-            "Завершите текущий шаг или нажмите ❌ Отмена.",
+            "Введите операцию одной строкой или нажмите Отмена.",
 
         dataError: "Произошла ошибка в данных операции. Начните заново.",
-
         readUserError: "Не удалось прочитать данные пользователя.",
-
         cancelButton: "❌ Отмена",
     },
 
@@ -616,48 +597,38 @@ export const translations: Record<SupportedLanguage, Messages> = {
     transactionFlow: {
         start: (type: string) =>
             `Okay, let's add ${type}.\n\n` +
-            "Enter the amount only, for example:\n" +
-            "1500",
+            "Write the transaction in one line, for example:\n" +
+            "1500 salary\n\n" +
+            "Optionally, you can add a date and note:\n" +
+            "1500 salary YYYY-MM-DD bonus\n",
 
-        askCategory:
-            "Enter the category, for example:\n" +
-            "salary\n" +
-            "food\n" +
-            "transport",
-
-        askDate:
-            "Enter the transaction date in YYYY-MM-DD format, for example:\n" +
-            "2026-05-05\n\n" +
-            "Or enter - to use today's date.",
-
-        askNote: "Enter a note for the transaction, or enter - for no note.",
+        askCategory: "",
+        askDate: "",
+        askNote: "",
 
         invalidAmount:
-            "Invalid amount.\n\n" +
-            "Enter a number greater than zero, for example:\n" +
-            "1500\n\n" +
+            "Invalid format.\n\n" +
+            "Write the transaction like this:\n" +
+            "1500 salary\n\n" +
+            "Or with date and note:\n" +
+            "1500 salary YYYY-MM-DD bonus\n\n" +
             "Or type /cancel to cancel.",
 
         invalidDate:
             "Invalid date format.\n\n" +
-            "Enter the date like this:\n" +
-            "2026-05-05\n\n" +
-            "Or enter - to use today's date.",
+            "Write the date like this:\n" +
+            "YYYY-MM-DD",
 
         emptyCategory: "Category cannot be empty.",
-
         noActiveFlow: "There is no active transaction to cancel.",
-
         cancelled: "The current transaction has been cancelled.",
 
         activeFlowWarning:
             "You already have an active transaction flow.\n\n" +
-            "Complete the current step or press ❌ Cancel.",
+            "Write the transaction in one line or press Cancel.",
 
         dataError: "There was an error in the transaction data. Please start again.",
-
         readUserError: "Could not read user data.",
-
         cancelButton: "❌ Cancel",
     },
     delete: {
