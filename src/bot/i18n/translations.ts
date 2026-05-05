@@ -13,6 +13,8 @@ export type MenuMessages = {
   deleteLast: string;
   language: string;
   currency: string;
+  moreReports: string;
+  settings: string;
 };
 
 type ReportMessages = {
@@ -327,6 +329,8 @@ export const translations: Record<SupportedLanguage, Messages> = {
       deleteLast: "🗑 حذف آخر عملية",
       language: "🌐 اللغة / Language",
       currency: "💱 العملة",
+      moreReports: "📊 تقارير أخرى",
+      settings: "⚙️ الإعدادات",
     },
   },
 
@@ -536,6 +540,8 @@ export const translations: Record<SupportedLanguage, Messages> = {
       deleteLast: "🗑 Удалить последнюю",
       language: "🌐 Язык / Language",
       currency: "💱 Валюта",
+      moreReports: "📊 Другие отчёты",
+      settings: "⚙️ Настройки",
     },
   },
 
@@ -743,6 +749,8 @@ export const translations: Record<SupportedLanguage, Messages> = {
       deleteLast: "🗑 Delete last",
       language: "🌐 Language",
       currency: "💱 Currency",
+      moreReports: "📊 More reports",
+      settings: "⚙️ Settings",
     },
   },
 };

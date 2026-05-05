@@ -1,5 +1,9 @@
 import { Keyboard } from "grammy";
-import { defaultLanguage, supportedLanguages, SupportedLanguage } from "../i18n/language";
+import {
+  defaultLanguage,
+  supportedLanguages,
+  SupportedLanguage,
+} from "../i18n/language";
 import { getMessages, MenuMessages } from "../i18n/translations";
 
 type MenuButtonKey = keyof MenuMessages;
@@ -13,20 +17,15 @@ export function createMainMenuKeyboard(
     .text(menu.addIncome)
     .text(menu.addExpense)
     .row()
-    .text(menu.reportAll)
     .text(menu.reportDay)
+    .text(menu.moreReports)
     .row()
-    .text(menu.reportWeek)
-    .text(menu.reportMonth)
-    .row()
-    .text(menu.reportYear)
     .text(menu.history)
-    .row()
-    .text(menu.help)
     .text(menu.deleteLast)
     .row()
-    .text(menu.language)
-    .text(menu.currency)
+    .text(menu.settings)
+    .row()
+    .text(menu.help)
     .resized();
 }
 

@@ -11,6 +11,16 @@ import { BotContext } from "../context";
 import { UserService } from "../../application/services/user.service";
 import { getMessages } from "../i18n/translations";
 import { config } from "../../config/env";
+import { askForLanguage } from "./language.command";
+import { askForCurrency } from "./currency.command";
+import {
+  createReportOptionsKeyboard,
+  reportOptionCallbacks,
+} from "../keyboards/report-options.keyboard";
+import {
+  createSettingsOptionsKeyboard,
+  settingsOptionCallbacks,
+} from "../keyboards/settings-options.keyboard";
 
 async function replyWithReport(
   ctx: Context,
@@ -95,31 +105,51 @@ export function registerMenuCommandHandlers(
   historyService: HistoryService,
   userService: UserService
 ): void {
-  bot.hears(getMainMenuButtonTexts("reportAll"), async (ctx) => {
-    await replyWithReport(ctx, reportService, userService, "all");
+
+  bot.hears(getMainMenuButtonTexts("history"), async (ctx) => {
+    await replyWithRecentHistory(ctx, historyService, userService);
   });
 
   bot.hears(getMainMenuButtonTexts("reportDay"), async (ctx) => {
     await replyWithReport(ctx, reportService, userService, "day");
   });
 
-  bot.hears(getMainMenuButtonTexts("reportWeek"), async (ctx) => {
+  bot.hears(getMainMenuButtonTexts("moreReports"), async (ctx) => {
+    const telegramUser = ctx.from;
+
+    if (!telegramUser) {
+        await ctx.reply(getMessages().common.readUserError);
+        return;
+    }
+
+    const language = await userService.getUserLanguage(telegramUser.id);
+
+    await ctx.reply(getMessages(language).menu.moreReports, {
+        reply_markup: createReportOptionsKeyboard(language),
+    });
+  });
+
+    bot.callbackQuery(reportOptionCallbacks.all, async (ctx) => {
+    await ctx.answerCallbackQuery();
+    await replyWithReport(ctx, reportService, userService, "all");
+    });
+
+    bot.callbackQuery(reportOptionCallbacks.week, async (ctx) => {
+    await ctx.answerCallbackQuery();
     await replyWithReport(ctx, reportService, userService, "week");
-  });
+    });
 
-  bot.hears(getMainMenuButtonTexts("reportMonth"), async (ctx) => {
+    bot.callbackQuery(reportOptionCallbacks.month, async (ctx) => {
+    await ctx.answerCallbackQuery();
     await replyWithReport(ctx, reportService, userService, "month");
-  });
+    });
 
-  bot.hears(getMainMenuButtonTexts("reportYear"), async (ctx) => {
+    bot.callbackQuery(reportOptionCallbacks.year, async (ctx) => {
+    await ctx.answerCallbackQuery();
     await replyWithReport(ctx, reportService, userService, "year");
-  });
+    });
 
-  bot.hears(getMainMenuButtonTexts("history"), async (ctx) => {
-    await replyWithRecentHistory(ctx, historyService, userService);
-  });
-
-   bot.hears(getMainMenuButtonTexts("help"), async (ctx) => {
+    bot.hears(getMainMenuButtonTexts("settings"), async (ctx) => {
         const telegramUser = ctx.from;
 
         if (!telegramUser) {
@@ -128,10 +158,36 @@ export function registerMenuCommandHandlers(
         }
 
         const language = await userService.getUserLanguage(telegramUser.id);
-        const messages = getMessages(language);
 
-        await ctx.reply(messages.help.text(config.defaultCurrency), {
-            reply_markup: createMainMenuKeyboard(language),
+        await ctx.reply(getMessages(language).menu.settings, {
+            reply_markup: createSettingsOptionsKeyboard(language),
         });
+    });
+
+    bot.callbackQuery(settingsOptionCallbacks.language, async (ctx) => {
+        await ctx.answerCallbackQuery();
+        await askForLanguage(ctx);
+    });
+
+        bot.callbackQuery(settingsOptionCallbacks.currency, async (ctx) => {
+        await ctx.answerCallbackQuery();
+        await askForCurrency(ctx, userService);
+    });
+
+    bot.hears(getMainMenuButtonTexts("help"), async (ctx) => {
+    const telegramUser = ctx.from;
+
+    if (!telegramUser) {
+        await ctx.reply(getMessages().common.readUserError);
+        return;
+    }
+
+    const language = await userService.getUserLanguage(telegramUser.id);
+    const currency = await userService.getUserCurrency(telegramUser.id);
+    const messages = getMessages(language);
+
+    await ctx.reply(messages.help.text(currency), {
+        reply_markup: createMainMenuKeyboard(language),
+    });
     });
 }

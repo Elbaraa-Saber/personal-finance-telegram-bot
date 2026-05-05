@@ -12,7 +12,7 @@ import {
   getMainMenuButtonTexts,
 } from "../keyboards/main-menu.keyboard";
 
-async function askForLanguage(ctx: BotContext): Promise<void> {
+export async function askForLanguage(ctx: BotContext): Promise<void> {
   await ctx.reply(getMessages().start.chooseLanguage, {
     reply_markup: createLanguageKeyboard(),
   });

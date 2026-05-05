@@ -23,7 +23,7 @@ function normalizeCustomCurrency(text: string): string | null {
   return currency;
 }
 
-async function askForCurrency(
+export async function askForCurrency(
   ctx: BotContext,
   userService: UserService
 ): Promise<void> {
