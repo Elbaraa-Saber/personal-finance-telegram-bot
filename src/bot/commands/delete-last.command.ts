@@ -84,7 +84,7 @@ export function registerDeleteLastCommand(
         );
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : "حدث خطأ غير متوقع.";
+          error instanceof Error ? error.message : messages.common.unexpectedError;
 
         await ctx.editMessageText(`❌ ${message}`);
       }

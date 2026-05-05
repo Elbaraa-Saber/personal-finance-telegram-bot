@@ -13,10 +13,10 @@ export function registerHelpCommand(
     const telegramUser = ctx.from;
 
     if (!telegramUser) {
-      await ctx.reply("لم أستطع قراءة بيانات المستخدم.");
+      await ctx.reply(getMessages().common.readUserError);
       return;
     }
-    
+
     const language = await userService.getUserLanguage(telegramUser.id);
     const messages = getMessages(language);
 

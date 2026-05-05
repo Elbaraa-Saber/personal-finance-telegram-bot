@@ -6,6 +6,7 @@ import {
 import { formatReport } from "../formatters/report.formatter";
 import { BotContext } from "../context";
 import { UserService } from "../../application/services/user.service";
+import { getMessages } from "../i18n/translations";
 
 async function replyWithReport(
   ctx: Context,
@@ -16,11 +17,12 @@ async function replyWithReport(
   const telegramUser = ctx.from;
 
   if (!telegramUser) {
-    await ctx.reply("لم أستطع قراءة بيانات المستخدم.");
+    await ctx.reply(getMessages().common.readUserError);
     return;
   }
 
   const language = await userService.getUserLanguage(telegramUser.id);
+  const messages = getMessages(language);
 
   try {
     const report = await reportService.getUserSummaryForPeriod(
@@ -31,7 +33,7 @@ async function replyWithReport(
     await ctx.reply(formatReport(report, language));
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "حدث خطأ غير متوقع.";
+      error instanceof Error ? error.message : messages.common.unexpectedError;
 
     await ctx.reply(`❌ ${message}`);
   }

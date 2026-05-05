@@ -21,9 +21,12 @@ async function replyWithReport(
   const telegramUser = ctx.from;
 
   if (!telegramUser) {
-    await ctx.reply("لم أستطع قراءة بيانات المستخدم.");
+    await ctx.reply(getMessages().common.readUserError);
     return;
   }
+
+  const language = await userService.getUserLanguage(telegramUser.id);
+  const messages = getMessages(language);
 
   try {
     const language = await userService.getUserLanguage(telegramUser.id);
@@ -36,7 +39,7 @@ async function replyWithReport(
     await ctx.reply(formatReport(report, language));
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "حدث خطأ غير متوقع.";
+        error instanceof Error ? error.message : messages.common.unexpectedError;
 
     await ctx.reply(`❌ ${message}`);
   }
@@ -50,7 +53,7 @@ async function replyWithRecentHistory(
   const telegramUser = ctx.from;
 
   if (!telegramUser) {
-    await ctx.reply("لم أستطع قراءة بيانات المستخدم.");
+    await ctx.reply(getMessages().common.readUserError);
     return;
   }
   const language = await userService.getUserLanguage(telegramUser.id);
@@ -78,7 +81,7 @@ async function replyWithRecentHistory(
     );
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "حدث خطأ غير متوقع.";
+        error instanceof Error ? error.message : messages.common.unexpectedError;
 
     await ctx.reply(`❌ ${message}`);
   }
@@ -118,7 +121,7 @@ export function registerMenuCommandHandlers(
         const telegramUser = ctx.from;
 
         if (!telegramUser) {
-            await ctx.reply("لم أستطع قراءة بيانات المستخدم.");
+            await ctx.reply(getMessages().common.readUserError);
             return;
         }
 

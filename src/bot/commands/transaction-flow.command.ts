@@ -323,7 +323,7 @@ export function registerTransactionFlowCommand(
         ctx.session.pendingTransaction = null;
 
         const message =
-          error instanceof Error ? error.message : "حدث خطأ غير متوقع.";
+            error instanceof Error ? error.message : messages.common.unexpectedError;
 
         await ctx.reply(`❌ ${message}`, {
           reply_markup: createMainMenuKeyboard(language),

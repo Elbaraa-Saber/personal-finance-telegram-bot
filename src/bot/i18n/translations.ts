@@ -84,7 +84,13 @@ type ManualTransactionMessages = {
   unexpectedError: string;
 };
 
+type CommonMessages = {
+  readUserError: string;
+  unexpectedError: string;
+};
+
 type Messages = {
+  common: CommonMessages;
   start: {
     chooseLanguage: string;
     welcome: string;
@@ -108,6 +114,10 @@ type Messages = {
 
 export const translations: Record<SupportedLanguage, Messages> = {
   ar: {
+    common: {
+        readUserError: "لم أستطع قراءة بيانات المستخدم.",
+        unexpectedError: "حدث خطأ غير متوقع.",
+    },
     start: {
       chooseLanguage: "اختر اللغة / Выберите язык / Choose language:",
       welcome:
@@ -320,6 +330,10 @@ export const translations: Record<SupportedLanguage, Messages> = {
   },
 
   ru: {
+    common: {
+        readUserError: "Не удалось прочитать данные пользователя.",
+        unexpectedError: "Произошла непредвиденная ошибка.",
+    },
     start: {
       chooseLanguage: "Выберите язык:",
       welcome:
@@ -534,6 +548,10 @@ export const translations: Record<SupportedLanguage, Messages> = {
   },
 
   en: {
+    common: {
+        readUserError: "Could not read user data.",
+        unexpectedError: "Unexpected error occurred.",
+    },
     start: {
       chooseLanguage: "Choose language:",
       welcome:

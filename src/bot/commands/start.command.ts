@@ -20,7 +20,7 @@ export function registerStartCommand(
     const telegramUser = ctx.from;
 
     if (!telegramUser) {
-      await ctx.reply("لم أستطع قراءة بيانات المستخدم.");
+      await ctx.reply(getMessages().common.readUserError);
       return;
     }
 
