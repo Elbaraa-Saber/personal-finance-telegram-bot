@@ -3,10 +3,7 @@ import {
   ReportPeriod,
   ReportService,
 } from "../../application/services/report.service";
-
-function formatAmount(amount: number): string {
-  return amount.toFixed(2);
-}
+import { formatReport } from "../formatters/report.formatter";
 
 async function replyWithReport(
   ctx: Context,
@@ -26,13 +23,7 @@ async function replyWithReport(
       period
     );
 
-    await ctx.reply(
-      `${report.title}\n\n` +
-        `إجمالي الدخل: ${formatAmount(report.totalIncome)}\n` +
-        `إجمالي المصروف: ${formatAmount(report.totalExpense)}\n` +
-        `الرصيد: ${formatAmount(report.balance)}\n` +
-        `عدد العمليات: ${report.transactionCount}`
-    );
+    await ctx.reply(formatReport(report));
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "حدث خطأ غير متوقع.";

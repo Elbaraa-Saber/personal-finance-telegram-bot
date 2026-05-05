@@ -4,41 +4,14 @@ import {
   HistoryService,
 } from "../../application/services/history.service";
 import { TransactionDocument } from "../../infrastructure/database/models/transaction.model";
+import { formatDate } from "../formatters/date.formatter";
+import { formatTransactionLine } from "../formatters/transaction.formatter";
 
 type ParsedHistoryArgument =
   | { type: "default" }
   | { type: "limit"; limit: number }
   | { type: "date"; date: Date }
   | { type: "invalid" };
-
-function formatAmount(amount: number): string {
-  return amount.toFixed(2);
-}
-
-function formatDate(date: Date): string {
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(date.getUTCDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
-function formatTransaction(
-  transaction: TransactionDocument,
-  index: number
-): string {
-  const icon = transaction.type === "income" ? "💰" : "💸";
-  const label = transaction.type === "income" ? "دخل" : "مصروف";
-  const noteText = transaction.note ? `\n   ملاحظة: ${transaction.note}` : "";
-
-  return (
-    `${index + 1}. ${icon} ${label} | ` +
-    `${formatAmount(transaction.amount)} | ` +
-    `${transaction.category} | ` +
-    `${formatDate(transaction.transactionDate)}` +
-    noteText
-  );
-}
 
 function parseDate(text: string): Date | null {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
@@ -115,7 +88,7 @@ async function replyWithTransactions(
   }
 
   const historyText = transactions
-    .map((transaction, index) => formatTransaction(transaction, index))
+    .map((transaction, index) => formatTransactionLine(transaction, index))
     .join("\n\n");
 
   await ctx.reply(`${title}\n\n${historyText}`);

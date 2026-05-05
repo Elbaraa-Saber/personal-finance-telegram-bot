@@ -4,37 +4,9 @@ import {
   ReportService,
 } from "../../application/services/report.service";
 import { HistoryService } from "../../application/services/history.service";
-import { TransactionDocument } from "../../infrastructure/database/models/transaction.model";
 import { mainMenuButtons } from "../keyboards/main-menu.keyboard";
-
-function formatAmount(amount: number): string {
-  return amount.toFixed(2);
-}
-
-function formatDate(date: Date): string {
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(date.getUTCDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
-function formatTransaction(
-  transaction: TransactionDocument,
-  index: number
-): string {
-  const icon = transaction.type === "income" ? "💰" : "💸";
-  const label = transaction.type === "income" ? "دخل" : "مصروف";
-  const noteText = transaction.note ? `\n   ملاحظة: ${transaction.note}` : "";
-
-  return (
-    `${index + 1}. ${icon} ${label} | ` +
-    `${formatAmount(transaction.amount)} | ` +
-    `${transaction.category} | ` +
-    `${formatDate(transaction.transactionDate)}` +
-    noteText
-  );
-}
+import { formatReport } from "../formatters/report.formatter";
+import { formatTransactionLine } from "../formatters/transaction.formatter";
 
 async function replyWithReport(
   ctx: Context,
@@ -54,13 +26,7 @@ async function replyWithReport(
       period
     );
 
-    await ctx.reply(
-      `${report.title}\n\n` +
-        `إجمالي الدخل: ${formatAmount(report.totalIncome)}\n` +
-        `إجمالي المصروف: ${formatAmount(report.totalExpense)}\n` +
-        `الرصيد: ${formatAmount(report.balance)}\n` +
-        `عدد العمليات: ${report.transactionCount}`
-    );
+    await ctx.reply(formatReport(report));
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "حدث خطأ غير متوقع.";
@@ -92,7 +58,7 @@ async function replyWithRecentHistory(
     }
 
     const historyText = transactions
-      .map((transaction, index) => formatTransaction(transaction, index))
+      .map((transaction, index) => formatTransactionLine(transaction, index))
       .join("\n\n");
 
     await ctx.reply(`🧾 آخر ${transactions.length} عملية\n\n${historyText}`);

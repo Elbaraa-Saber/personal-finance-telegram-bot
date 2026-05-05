@@ -6,32 +6,8 @@ import {
   createDeleteConfirmationKeyboard,
   deleteConfirmationCallbacks,
 } from "../keyboards/delete-confirmation.keyboard";
+import { formatDeletedTransaction } from "../formatters/transaction.formatter";
 
-function formatAmount(amount: number): string {
-  return amount.toFixed(2);
-}
-
-function formatDate(date: Date): string {
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(date.getUTCDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
-function formatDeletedTransaction(transaction: TransactionDocument): string {
-  const label = transaction.type === "income" ? "دخل" : "مصروف";
-  const icon = transaction.type === "income" ? "💰" : "💸";
-  const noteText = transaction.note ? `\nملاحظة: ${transaction.note}` : "";
-
-  return (
-    `${icon} تم حذف آخر ${label}\n\n` +
-    `المبلغ: ${formatAmount(transaction.amount)}\n` +
-    `التصنيف: ${transaction.category}\n` +
-    `التاريخ: ${formatDate(transaction.transactionDate)}` +
-    noteText
-  );
-}
 
 async function askDeleteConfirmation(ctx: Context): Promise<void> {
   await ctx.reply("هل أنت متأكد أنك تريد حذف آخر عملية؟", {
