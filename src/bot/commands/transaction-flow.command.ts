@@ -198,6 +198,7 @@ export function registerTransactionFlowCommand(
     }
 
     const language = await userService.getUserLanguage(telegramUser.id);
+    const currency = await userService.getUserCurrency(telegramUser.id);
     const messages = getMessages(language);
     const text = ctx.message.text.trim();
 
@@ -316,7 +317,7 @@ export function registerTransactionFlowCommand(
 
         ctx.session.pendingTransaction = null;
 
-        await ctx.reply(formatCreatedTransaction(transaction, language), {
+        await ctx.reply(formatCreatedTransaction(transaction, language, currency), {
           reply_markup: createMainMenuKeyboard(language),
         });
       } catch (error) {

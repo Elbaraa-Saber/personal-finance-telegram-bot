@@ -15,6 +15,7 @@ import { registerHelpCommand } from "./bot/commands/help.command";
 import { registerMenuCommandHandlers } from "./bot/commands/menu.command";
 import { registerTransactionFlowCommand } from "./bot/commands/transaction-flow.command";
 import { registerLanguageCommand } from "./bot/commands/language.command";
+import { registerCurrencyCommand } from "./bot/commands/currency.command";
 
 async function main(): Promise<void> {
   await connectToDatabase();
@@ -42,6 +43,7 @@ async function main(): Promise<void> {
 
   registerStartCommand(bot, userService);
   registerLanguageCommand(bot, userService);
+  registerCurrencyCommand(bot, userService);
   registerTransactionFlowCommand(bot, transactionService, userService);
   
   registerHelpCommand(bot, userService);

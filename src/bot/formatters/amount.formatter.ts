@@ -1,5 +1,6 @@
-import { config } from "../../config/env"
-
-export function formatAmount(amount: number): string {
-  return `${amount.toFixed(2)} ${config.defaultCurrency}`;
+export function formatAmount(
+  amount: number,
+  currency: string
+): string {
+  return `${amount.toFixed(2)} ${currency}`;
 }

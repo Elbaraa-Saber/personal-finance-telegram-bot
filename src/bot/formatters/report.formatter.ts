@@ -5,16 +5,17 @@ import { formatAmount } from "./amount.formatter";
 
 export function formatReport(
   report: ReportResult,
-  language: SupportedLanguage
+  language: SupportedLanguage,
+  currency: string
 ): string {
   const messages = getMessages(language);
   const title = messages.report.titles[report.period];
 
   return (
     `${title}\n\n` +
-    `${messages.report.totalIncome}: ${formatAmount(report.totalIncome)}\n` +
-    `${messages.report.totalExpense}: ${formatAmount(report.totalExpense)}\n` +
-    `${messages.report.balance}: ${formatAmount(report.balance)}\n` +
+    `${messages.report.totalIncome}: ${formatAmount(report.totalIncome, currency)}\n` +
+    `${messages.report.totalExpense}: ${formatAmount(report.totalExpense, currency)}\n` +
+    `${messages.report.balance}: ${formatAmount(report.balance, currency)}\n` +
     `${messages.report.transactionCount}: ${report.transactionCount}`
   );
 }

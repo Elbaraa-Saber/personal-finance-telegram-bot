@@ -12,6 +12,7 @@ export type MenuMessages = {
   help: string;
   deleteLast: string;
   language: string;
+  currency: string;
 };
 
 type ReportMessages = {
@@ -89,6 +90,14 @@ type CommonMessages = {
   unexpectedError: string;
 };
 
+type CurrencyMessages = {
+  choose: string;
+  selected: (currency: string) => string;
+  customButton: string;
+  customPrompt: string;
+  invalidCustom: string;
+};
+
 type Messages = {
   common: CommonMessages;
   start: {
@@ -110,6 +119,7 @@ type Messages = {
   transactionFlow: TransactionFlowMessages;
   delete: DeleteMessages;
   manualTransaction: ManualTransactionMessages;
+  currency: CurrencyMessages;
 };
 
 export const translations: Record<SupportedLanguage, Messages> = {
@@ -129,6 +139,21 @@ export const translations: Record<SupportedLanguage, Messages> = {
       selected: "تم اختيار اللغة العربية ✅",
       ready: "يمكنك الآن استخدام البوت من القائمة.",
       unsupported: "هذه اللغة غير مدعومة.",
+    },
+    currency: {
+        choose: "اختر العملة التي تريد استخدامها:",
+        selected: (currency: string) => `تم اختيار العملة: ${currency} ✅`,
+        customButton: "عملة مخصصة",
+        customPrompt:
+            "اكتب العملة التي تريد استخدامها.\n\n" +
+            "مثال:\n" +
+            "USDT\n" +
+            "BYN\n" +
+            "₽\n" +
+            "$",
+        invalidCustom:
+            "العملة غير صحيحة.\n" +
+            "اكتب رمزًا قصيرًا للعملة، مثال: USD أو RUB أو ₽.",
     },
     report: {
         titles: {
@@ -326,6 +351,7 @@ export const translations: Record<SupportedLanguage, Messages> = {
       help: "ℹ️ المساعدة",
       deleteLast: "🗑 حذف آخر عملية",
       language: "🌐 اللغة / Language",
+      currency: "💱 العملة",
     },
   },
 
@@ -346,6 +372,21 @@ export const translations: Record<SupportedLanguage, Messages> = {
       ready: "Теперь вы можете пользоваться ботом из меню.",
       unsupported: "Этот язык не поддерживается.",
     },
+    currency: {
+        choose: "Выберите валюту, которую хотите использовать:",
+        selected: (currency: string) => `Выбрана валюта: ${currency} ✅`,
+        customButton: "Своя валюта",
+        customPrompt:
+            "Введите валюту, которую хотите использовать.\n\n" +
+            "Пример:\n" +
+            "USDT\n" +
+            "BYN\n" +
+            "₽\n" +
+            "$",
+        invalidCustom:
+            "Некорректная валюта.\n" +
+            "Введите короткое обозначение валюты, например USD, RUB или ₽.",
+    },
     report: {
         titles: {
             all: "📊 Общий отчёт",
@@ -364,7 +405,7 @@ export const translations: Record<SupportedLanguage, Messages> = {
         income: "Доход",
         expense: "Расход",
         note: "Примечание",
-        createdSuccessfully: (type: string) => `✅ ${type} added successfully`,
+        createdSuccessfully: (type: string) => `✅ ${type} успешно добавлен`,
         },
 
         history: {
@@ -544,6 +585,7 @@ export const translations: Record<SupportedLanguage, Messages> = {
       help: "ℹ️ Помощь",
       deleteLast: "🗑 Удалить последнюю",
       language: "🌐 Язык / Language",
+      currency: "💱 Валюта",
     },
   },
 
@@ -563,6 +605,21 @@ export const translations: Record<SupportedLanguage, Messages> = {
       selected: "English selected ✅",
       ready: "You can now use the bot from the menu.",
       unsupported: "Unsupported language.",
+    },
+    currency: {
+        choose: "Choose the currency you want to use:",
+        selected: (currency: string) => `Currency selected: ${currency} ✅`,
+        customButton: "Custom currency",
+        customPrompt:
+            "Enter the currency you want to use.\n\n" +
+            "Examples:\n" +
+            "USDT\n" +
+            "BYN\n" +
+            "₽\n" +
+            "$",
+        invalidCustom:
+            "Invalid currency.\n" +
+            "Enter a short currency symbol/code, for example USD, RUB, or ₽.",
     },
     report: {
         titles: {
@@ -760,6 +817,7 @@ Notes:
       help: "ℹ️ Help",
       deleteLast: "🗑 Delete last",
       language: "🌐 Language",
+      currency: "💱 Currency",
     },
   },
 };

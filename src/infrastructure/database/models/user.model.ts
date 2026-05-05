@@ -10,6 +10,7 @@ export interface UserDocument {
   createdAt: Date;
   updatedAt: Date;
   language?: SupportedLanguage;
+  currency?: string;
 }
 
 const userSchema = new Schema<UserDocument>(
@@ -27,6 +28,11 @@ const userSchema = new Schema<UserDocument>(
       type: String,
       enum: ["ar", "ru", "en"],
       required: false,
+    },
+    currency: {
+      type: String,
+      required: false,
+      trim: true,
     },
   },
   {

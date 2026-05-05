@@ -68,6 +68,7 @@ export function registerDeleteLastCommand(
 
       const telegramUser = ctx.from;
       const language = await getLanguageForContext(ctx, userService);
+      const currency = await userService.getUserCurrency(telegramUser.id);
       const messages = getMessages(language);
 
       if (!telegramUser) {
@@ -80,7 +81,7 @@ export function registerDeleteLastCommand(
           await transactionService.deleteLastTransaction(telegramUser.id);
 
         await ctx.editMessageText(
-          formatDeletedTransaction(deletedTransaction, language)
+          formatDeletedTransaction(deletedTransaction, language, currency)
         );
       } catch (error) {
         const message =

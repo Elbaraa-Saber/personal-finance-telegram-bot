@@ -7,7 +7,8 @@ import { getMessages } from "../i18n/translations";
 export function formatTransactionLine(
   transaction: TransactionDocument,
   index: number,
-  language: SupportedLanguage
+  language: SupportedLanguage,
+  currency: string
 ): string {
   const messages = getMessages(language);
   const icon = transaction.type === "income" ? "💰" : "💸";
@@ -22,7 +23,7 @@ export function formatTransactionLine(
 
   return (
     `${index + 1}. ${icon} ${label} | ` +
-    `${formatAmount(transaction.amount)} | ` +
+    `${formatAmount(transaction.amount, currency)} | ` +
     `${transaction.category} | ` +
     `${formatDate(transaction.transactionDate)}` +
     noteText
@@ -31,7 +32,8 @@ export function formatTransactionLine(
 
 export function formatDeletedTransaction(
   transaction: TransactionDocument,
-  language: SupportedLanguage
+  language: SupportedLanguage,
+  currency: string
 ): string {
   const messages = getMessages(language);
 
@@ -41,14 +43,13 @@ export function formatDeletedTransaction(
       : messages.transaction.expense;
 
   const icon = transaction.type === "income" ? "💰" : "💸";
-
   const noteText = transaction.note
     ? `\n${messages.transaction.note}: ${transaction.note}`
     : "";
 
   return (
     `${icon} ${messages.delete.deletedSuccessfully(label)}\n\n` +
-    `${messages.delete.amount}: ${formatAmount(transaction.amount)}\n` +
+    `${messages.delete.amount}: ${formatAmount(transaction.amount, currency)}\n` +
     `${messages.delete.category}: ${transaction.category}\n` +
     `${messages.delete.date}: ${formatDate(transaction.transactionDate)}` +
     noteText
@@ -57,7 +58,8 @@ export function formatDeletedTransaction(
 
 export function formatCreatedTransaction(
   transaction: TransactionDocument,
-  language: SupportedLanguage
+  language: SupportedLanguage,
+  currency: string
 ): string {
   const messages = getMessages(language);
 
@@ -71,8 +73,8 @@ export function formatCreatedTransaction(
     : "";
 
   return (
-    `✅ ${label} added successfully\n\n` +
-    `💰 ${formatAmount(transaction.amount)}\n` +
+    ` ${messages.transaction.createdSuccessfully(label)}\n\n` +
+    `💰 ${formatAmount(transaction.amount, currency)}\n` +
     `🏷 ${transaction.category}\n` +
     `📅 ${formatDate(transaction.transactionDate)}` +
     noteText

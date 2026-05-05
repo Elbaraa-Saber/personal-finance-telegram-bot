@@ -18,9 +18,10 @@ export function registerHelpCommand(
     }
 
     const language = await userService.getUserLanguage(telegramUser.id);
+    const currency = await userService.getUserCurrency(telegramUser.id);
     const messages = getMessages(language);
 
-    await ctx.reply(messages.help.text(config.defaultCurrency), {
+    await ctx.reply(messages.help.text(currency), {
       reply_markup: createMainMenuKeyboard(language),
     });
   });

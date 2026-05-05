@@ -11,14 +11,16 @@ export type PendingTransaction = {
   transactionDateText?: string;
 };
 
-export type SessionData = {
-  pendingTransaction?: PendingTransaction | null;
-};
-
 export type BotContext = Context & SessionFlavor<SessionData>;
+
+export type SessionData = {
+  pendingTransaction: PendingTransaction | null;
+  pendingCurrencyInput: boolean;
+};
 
 export function createInitialSession(): SessionData {
   return {
     pendingTransaction: null,
+    pendingCurrencyInput: false,
   };
 }

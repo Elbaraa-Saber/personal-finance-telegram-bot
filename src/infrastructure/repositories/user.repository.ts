@@ -7,6 +7,7 @@ type CreateUserData = {
     firstName?: string;
     lastName?: string;
     language?: SupportedLanguage;
+    currency?: string;
 };
 
 export class UserRepository {
@@ -27,5 +28,16 @@ export class UserRepository {
             { $set: { language } },
             { new: true }
         ).exec();
+    }
+
+    async updateCurrencyByTelegramId(
+    telegramId: number,
+    currency: string
+    ): Promise<UserDocument | null> {
+    return UserModel.findOneAndUpdate(
+        { telegramId },
+        { $set: { currency } },
+        { returnDocument: "after" }
+    ).exec();
     }
 }

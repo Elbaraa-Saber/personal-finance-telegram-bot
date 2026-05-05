@@ -22,6 +22,7 @@ async function replyWithReport(
   }
 
   const language = await userService.getUserLanguage(telegramUser.id);
+  const currency = await userService.getUserCurrency(telegramUser.id);
   const messages = getMessages(language);
 
   try {
@@ -30,7 +31,7 @@ async function replyWithReport(
       period
     );
 
-    await ctx.reply(formatReport(report, language));
+    await ctx.reply(formatReport(report, language, currency));
   } catch (error) {
     const message =
       error instanceof Error ? error.message : messages.common.unexpectedError;

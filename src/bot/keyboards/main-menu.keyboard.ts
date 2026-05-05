@@ -26,6 +26,7 @@ export function createMainMenuKeyboard(
     .text(menu.deleteLast)
     .row()
     .text(menu.language)
+    .text(menu.currency)
     .resized();
 }
 

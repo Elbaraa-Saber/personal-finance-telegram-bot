@@ -150,6 +150,7 @@ async function handleParsedTransaction(
   }
 
   const language = await userService.getUserLanguage(telegramUser.id);
+  const currency = await userService.getUserCurrency(telegramUser.id);
   const messages = getMessages(language);
 
   try {
@@ -164,7 +165,7 @@ async function handleParsedTransaction(
         : {}),
     });
 
-    await ctx.reply(formatCreatedTransaction(transaction, language));
+    await ctx.reply(formatCreatedTransaction(transaction, language, currency));
   } catch (error) {
     const message =
       error instanceof Error ? error.message : messages.manualTransaction.unexpectedError;

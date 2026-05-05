@@ -26,6 +26,7 @@ async function replyWithReport(
   }
 
   const language = await userService.getUserLanguage(telegramUser.id);
+  const currency = await userService.getUserCurrency(telegramUser.id);
   const messages = getMessages(language);
 
   try {
@@ -36,7 +37,7 @@ async function replyWithReport(
       period
     );
 
-    await ctx.reply(formatReport(report, language));
+    await ctx.reply(formatReport(report, language, currency));
   } catch (error) {
     const message =
         error instanceof Error ? error.message : messages.common.unexpectedError;
@@ -57,6 +58,7 @@ async function replyWithRecentHistory(
     return;
   }
   const language = await userService.getUserLanguage(telegramUser.id);
+  const currency = await userService.getUserCurrency(telegramUser.id);
   const messages = getMessages(language);
 
   try {
@@ -72,7 +74,7 @@ async function replyWithRecentHistory(
 
     const historyText = transactions
         .map((transaction, index) =>
-            formatTransactionLine(transaction, index, language)
+            formatTransactionLine(transaction, index, language, currency)
         )
         .join("\n\n");
 

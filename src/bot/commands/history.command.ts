@@ -83,7 +83,8 @@ async function replyWithTransactions(
   ctx: Context,
   title: string,
   transactions: TransactionDocument[],
-  language: SupportedLanguage
+  language: SupportedLanguage,
+  currency: string
 ): Promise<void> {
   const messages = getMessages(language);
 
@@ -94,7 +95,7 @@ async function replyWithTransactions(
 
   const historyText = transactions
     .map((transaction, index) =>
-      formatTransactionLine(transaction, index, language)
+      formatTransactionLine(transaction, index, language, currency)
     )
     .join("\n\n");
 
@@ -106,7 +107,7 @@ async function replyWithPeriodHistory(
   historyService: HistoryService,
   userService: UserService,
   period: HistoryPeriod,
-  titleKey: HistoryPeriod
+  titleKey: HistoryPeriod,
 ): Promise<void> {
   const telegramUser = ctx.from;
 
@@ -120,6 +121,7 @@ async function replyWithPeriodHistory(
 
   try {
     const language = await userService.getUserLanguage(telegramUser.id);
+    const currency = await userService.getUserCurrency(telegramUser.id);
     const messages = getMessages(language);
 
     const transactions = await historyService.getTransactionsForPeriod(
@@ -131,7 +133,8 @@ async function replyWithPeriodHistory(
       ctx,
       messages.history.titles[titleKey],
       transactions,
-      language
+      language,
+      currency
     );
   } catch (error) {
     const message =
@@ -144,7 +147,7 @@ async function replyWithPeriodHistory(
 export function registerHistoryCommand(
   bot: Bot<BotContext>,
   historyService: HistoryService,
-  userService: UserService
+  userService: UserService,
 ): void {
   bot.command("history", async (ctx) => {
     const telegramUser = ctx.from;
@@ -155,6 +158,8 @@ export function registerHistoryCommand(
     }
 
     const language = await userService.getUserLanguage(telegramUser.id);
+    const currency = await userService.getUserCurrency(telegramUser.id);
+
     const messages = getMessages(language);
 
     const parsedArgument = parseHistoryArgument(ctx.message?.text);
@@ -175,7 +180,8 @@ export function registerHistoryCommand(
           ctx,
           messages.history.titles.recent(transactions.length),
           transactions,
-          language
+          language,
+          currency
         );
         return;
       }
@@ -192,7 +198,8 @@ export function registerHistoryCommand(
           ctx,
           messages.history.titles.date(dateText),
           transactions,
-          language
+          language,
+          currency
         );
         return;
       }
@@ -205,7 +212,8 @@ export function registerHistoryCommand(
         ctx,
         messages.history.titles.recent(transactions.length),
         transactions,
-        language
+        language,
+        currency
       );
     } catch (error) {
       const message =
