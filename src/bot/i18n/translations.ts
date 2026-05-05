@@ -278,66 +278,41 @@ export const translations: Record<SupportedLanguage, Messages> = {
     },
 
     help: {
-      text: (currency: string) =>
-        `
-👋 أهلاً بك في بوت إدارة المصاريف
+    text: (currency: string) =>
+            `
+        👋 أهلاً بك في SmartSpendBot
 
-الأوامر المتاحة:
+        💰 إضافة سريعة:
+        + 1500 salary
+        - 250 food
+        + 1500 salary 2026-05-05 bonus
+        - 250 food 2026-05-05 lunch
 
-/start
-تسجيل المستخدم وتشغيل البوت
+        📊 التقارير:
+        /report — التقرير الكامل
+        /report_day — تقرير اليوم
+        /report_week — تقرير الأسبوع
+        /report_month — تقرير الشهر
+        /report_year — تقرير السنة
 
-/help
-عرض هذه المساعدة
+        🧾 السجل:
+        /history — آخر 5 عمليات
+        /history 10 — آخر 10 عمليات
+        /history 2026-05-04 — عمليات يوم محدد
 
-/language
-تغيير لغة البوت
+        ⚙️ الإعدادات:
+        /language — تغيير اللغة
+        /currency — تغيير العملة
+        /delete_last — حذف آخر عملية بعد التأكيد
 
-/income 1000 salary
-إضافة دخل
-مثال:
-/income 5000 salary
-/income 5000 salary 2026-05-05
+        📝 الصيغة:
+        + المبلغ التصنيف التاريخ الملاحظة
+        - المبلغ التصنيف التاريخ الملاحظة
 
-/expense 250 food
-إضافة مصروف
-مثال:
-/expense 250 food
-/expense 250 food 2026-05-05 lunch
-
-/report
-عرض التقرير الكامل
-
-/report_day
-عرض تقرير اليوم
-
-/report_week
-عرض تقرير الأسبوع الحالي
-
-/report_month
-عرض تقرير الشهر الحالي
-
-/report_year
-عرض تقرير السنة الحالية
-
-/history
-عرض آخر 5 عمليات
-
-/history 10
-عرض آخر 10 عمليات
-
-/history 2026-05-04
-عرض عمليات يوم محدد
-
-/delete_last
-حذف آخر عملية بعد التأكيد
-
-ملاحظات:
-- المبلغ يجب أن يكون رقمًا أكبر من صفر.
-- التاريخ اختياري، وإذا لم تكتبه سيتم استخدام تاريخ اليوم.
-- صيغة التاريخ: YYYY-MM-DD
-- العملة الحالية: ${currency}
-`.trim(),
+        التاريخ والملاحظة اختياريان.
+        صيغة التاريخ: YYYY-MM-DD
+        العملة الحالية: ${currency}
+        `.trim(),
     },
     menu: {
       addIncome: "➕ إضافة دخل",
@@ -512,66 +487,41 @@ export const translations: Record<SupportedLanguage, Messages> = {
         unexpectedError: "Произошла непредвиденная ошибка.",
     },
     help: {
-      text: (currency: string) =>
+    text: (currency: string) =>
         `
-👋 Добро пожаловать в бот учёта расходов
+        👋 Добро пожаловать в SmartSpendBot
 
-Доступные команды:
+        💰 Быстрое добавление:
+        + 1500 salary
+        - 250 food
+        + 1500 salary 2026-05-05 bonus
+        - 250 food 2026-05-05 lunch
 
-/start
-Регистрация пользователя и запуск бота
+        📊 Отчёты:
+        /report — общий отчёт
+        /report_day — отчёт за сегодня
+        /report_week — отчёт за неделю
+        /report_month — отчёт за месяц
+        /report_year — отчёт за год
 
-/help
-Показать эту справку
+        🧾 История:
+        /history — последние 5 операций
+        /history 10 — последние 10 операций
+        /history 2026-05-04 — операции за конкретный день
 
-/language
-Изменить язык бота
+        ⚙️ Настройки:
+        /language — изменить язык
+        /currency — изменить валюту
+        /delete_last — удалить последнюю операцию после подтверждения
 
-/income 1000 salary
-Добавить доход
-Пример:
-/income 5000 salary
-/income 5000 salary 2026-05-05
+        📝 Формат:
+        + сумма категория дата заметка
+        - сумма категория дата заметка
 
-/expense 250 food
-Добавить расход
-Пример:
-/expense 250 food
-/expense 250 food 2026-05-05 lunch
-
-/report
-Показать общий отчёт
-
-/report_day
-Показать отчёт за сегодня
-
-/report_week
-Показать отчёт за текущую неделю
-
-/report_month
-Показать отчёт за текущий месяц
-
-/report_year
-Показать отчёт за текущий год
-
-/history
-Показать последние 5 операций
-
-/history 10
-Показать последние 10 операций
-
-/history 2026-05-04
-Показать операции за конкретный день
-
-/delete_last
-Удалить последнюю операцию после подтверждения
-
-Примечания:
-- Сумма должна быть числом больше нуля.
-- Дата необязательна. Если её не указать, будет использована сегодняшняя дата.
-- Формат даты: YYYY-MM-DD
-- Текущая валюта: ${currency}
-`.trim(),
+        Дата и заметка необязательны.
+        Формат даты: YYYY-MM-DD
+        Текущая валюта: ${currency}
+        `.trim(),
     },
     menu: {
       addIncome: "➕ Добавить доход",
@@ -744,66 +694,41 @@ export const translations: Record<SupportedLanguage, Messages> = {
         unexpectedError: "Unexpected error occurred.",
     },
     help: {
-      text: (currency: string) =>
-        `
-👋 Welcome to the expense tracker bot
+        text: (currency: string) =>
+            `
+        👋 Welcome to SmartSpendBot
 
-Available commands:
+        💰 Quick add:
+        + 1500 salary
+        - 250 food
+        + 1500 salary 2026-05-05 bonus
+        - 250 food 2026-05-05 lunch
 
-/start
-Register the user and start the bot
+        📊 Reports:
+        /report — full report
+        /report_day — today's report
+        /report_week — this week's report
+        /report_month — this month's report
+        /report_year — this year's report
 
-/help
-Show this help message
+        🧾 History:
+        /history — last 5 transactions
+        /history 10 — last 10 transactions
+        /history 2026-05-04 — transactions for a specific day
 
-/language
-Change bot language
+        ⚙️ Settings:
+        /language — change language
+        /currency — change currency
+        /delete_last — delete the last transaction after confirmation
 
-/income 1000 salary
-Add income
-Example:
-/income 5000 salary
-/income 5000 salary 2026-05-05
+        📝 Format:
+        + amount category date note
+        - amount category date note
 
-/expense 250 food
-Add expense
-Example:
-/expense 250 food
-/expense 250 food 2026-05-05 lunch
-
-/report
-Show full report
-
-/report_day
-Show today's report
-
-/report_week
-Show current week report
-
-/report_month
-Show current month report
-
-/report_year
-Show current year report
-
-/history
-Show last 5 transactions
-
-/history 10
-Show last 10 transactions
-
-/history 2026-05-04
-Show transactions for a specific day
-
-/delete_last
-Delete the last transaction after confirmation
-
-Notes:
-- Amount must be a number greater than zero.
-- Date is optional. If omitted, today's date will be used.
-- Date format: YYYY-MM-DD
-- Current currency: ${currency}
-`.trim(),
+        Date and note are optional.
+        Date format: YYYY-MM-DD
+        Current currency: ${currency}
+        `.trim(),
     },
     menu: {
       addIncome: "➕ Add income",
