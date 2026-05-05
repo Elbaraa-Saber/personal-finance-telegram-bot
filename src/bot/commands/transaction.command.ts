@@ -14,26 +14,30 @@ function isDateText(text: string): boolean {
 }
 
 function parseDate(text: string): Date | null {
-  const parts = text.split("-");
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
 
-  const year = Number(parts[0]);
-  const month = Number(parts[1]);
-  const day = Number(parts[2]);
-
-  if (
-    !Number.isInteger(year) ||
-    !Number.isInteger(month) ||
-    !Number.isInteger(day)
-  ) {
+  if (!match) {
     return null;
   }
 
-  const date = new Date(year, month - 1, day);
+  const yearText = match[1];
+  const monthText = match[2];
+  const dayText = match[3];
+
+  if (!yearText || !monthText || !dayText) {
+    return null;
+  }
+
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+
+  const date = new Date(Date.UTC(year, month - 1, day));
 
   const isValidDate =
-    date.getFullYear() === year &&
-    date.getMonth() === month - 1 &&
-    date.getDate() === day;
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day;
 
   return isValidDate ? date : null;
 }

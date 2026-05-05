@@ -10,8 +10,8 @@ type CreateTransactionData = {
   type: TransactionType;
   amount: number;
   category: string;
+  transactionDate: Date;
   note?: string;
-  transactionDate?: Date;
 };
 
 export type TransactionSummary = {

@@ -14,6 +14,13 @@ type AddTransactionData = {
   transactionDate?: Date;
 };
 
+function getTodayDateOnly(): Date {
+    const now = new Date();
+
+    return new Date(
+        Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+);
+}
 export class TransactionService {
     constructor(
         private readonly transactionRepository: TransactionRepository,
@@ -36,8 +43,8 @@ export class TransactionService {
                 type: data.type,
                 amount: data.amount,
                 category: data.category,
-                ...(data.note ? { note: data.note} : {}),
-                ...(data.transactionDate ? { transactionDate: data.transactionDate } : {}),
+                transactionDate: data.transactionDate ?? getTodayDateOnly(),
+                ...(data.note ? { note: data.note } : {}),
             });
     }
 
@@ -57,4 +64,5 @@ export class TransactionService {
 
         return deletedTransaction;
     }
+
 }
