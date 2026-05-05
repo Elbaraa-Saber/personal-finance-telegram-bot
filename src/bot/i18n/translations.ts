@@ -76,6 +76,14 @@ type DeleteMessages = {
   readUserError: string;
 };
 
+type ManualTransactionMessages = {
+  incomeUsage: string;
+  expenseUsage: string;
+  shortcutUsage: string;
+  readUserError: string;
+  unexpectedError: string;
+};
+
 type Messages = {
   start: {
     chooseLanguage: string;
@@ -95,6 +103,7 @@ type Messages = {
   history: HistoryMessages;
   transactionFlow: TransactionFlowMessages;
   delete: DeleteMessages;
+  manualTransaction: ManualTransactionMessages;
 };
 
 export const translations: Record<SupportedLanguage, Messages> = {
@@ -203,6 +212,34 @@ export const translations: Record<SupportedLanguage, Messages> = {
         category: "التصنيف",
         date: "التاريخ",
         readUserError: "لم أستطع قراءة بيانات المستخدم.",
+    },
+    manualTransaction: {
+        incomeUsage:
+            "استخدم أمر الدخل بهذا الشكل:\n" +
+            "/income 1500 salary\n" +
+            "/income 1500 salary 2026-05-05 bonus\n\n" +
+            "أو بالاختصار:\n" +
+            "+ 1500 salary\n" +
+            "+ 1500 salary 2026-05-05 bonus",
+
+        expenseUsage:
+            "استخدم أمر المصروف بهذا الشكل:\n" +
+            "/expense 250 food\n" +
+            "/expense 250 food 2026-05-05 lunch\n\n" +
+            "أو بالاختصار:\n" +
+            "- 250 food\n" +
+            "- 250 food 2026-05-05 lunch",
+
+        shortcutUsage:
+            "استخدم الاختصار بهذا الشكل:\n" +
+            "+ 1500 salary\n" +
+            "- 250 food\n\n" +
+            "ويمكنك إضافة التاريخ والملاحظة:\n" +
+            "+ 1500 salary 2026-05-05 bonus\n" +
+            "- 250 food 2026-05-05 lunch",
+
+        readUserError: "لم أستطع قراءة بيانات المستخدم.",
+        unexpectedError: "حدث خطأ غير متوقع.",
     },
 
     help: {
@@ -391,6 +428,34 @@ export const translations: Record<SupportedLanguage, Messages> = {
         date: "Дата",
         readUserError: "Не удалось прочитать данные пользователя.",
     },
+    manualTransaction: {
+        incomeUsage:
+            "Используйте команду дохода так:\n" +
+            "/income 1500 salary\n" +
+            "/income 1500 salary 2026-05-05 bonus\n\n" +
+            "Или короткий вариант:\n" +
+            "+ 1500 salary\n" +
+            "+ 1500 salary 2026-05-05 bonus",
+
+        expenseUsage:
+            "Используйте команду расхода так:\n" +
+            "/expense 250 food\n" +
+            "/expense 250 food 2026-05-05 lunch\n\n" +
+            "Или короткий вариант:\n" +
+            "- 250 food\n" +
+            "- 250 food 2026-05-05 lunch",
+
+        shortcutUsage:
+            "Используйте короткий формат так:\n" +
+            "+ 1500 salary\n" +
+            "- 250 food\n\n" +
+            "Можно также добавить дату и примечание:\n" +
+            "+ 1500 salary 2026-05-05 bonus\n" +
+            "- 250 food 2026-05-05 lunch",
+
+        readUserError: "Не удалось прочитать данные пользователя.",
+        unexpectedError: "Произошла непредвиденная ошибка.",
+    },
     help: {
       text: (currency: string) =>
         `
@@ -574,6 +639,34 @@ export const translations: Record<SupportedLanguage, Messages> = {
         category: "Category",
         date: "Date",
         readUserError: "Could not read user data.",
+    },
+    manualTransaction: {
+        incomeUsage:
+            "Use the income command like this:\n" +
+            "/income 1500 salary\n" +
+            "/income 1500 salary 2026-05-05 bonus\n\n" +
+            "Or use the shortcut:\n" +
+            "+ 1500 salary\n" +
+            "+ 1500 salary 2026-05-05 bonus",
+
+        expenseUsage:
+            "Use the expense command like this:\n" +
+            "/expense 250 food\n" +
+            "/expense 250 food 2026-05-05 lunch\n\n" +
+            "Or use the shortcut:\n" +
+            "- 250 food\n" +
+            "- 250 food 2026-05-05 lunch",
+
+        shortcutUsage:
+            "Use the shortcut like this:\n" +
+            "+ 1500 salary\n" +
+            "- 250 food\n\n" +
+            "You can also add a date and note:\n" +
+            "+ 1500 salary 2026-05-05 bonus\n" +
+            "- 250 food 2026-05-05 lunch",
+
+        readUserError: "Could not read user data.",
+        unexpectedError: "Unexpected error occurred.",
     },
     help: {
       text: (currency: string) =>
