@@ -93,6 +93,34 @@ async function cancelTransactionFlow(ctx: BotContext): Promise<void> {
   });
 }
 
+function isCommandText(text: string): boolean {
+  return text.startsWith("/");
+}
+
+function isMainMenuButtonText(text: string): boolean {
+  return Object.values(mainMenuButtons).includes(
+    text as (typeof mainMenuButtons)[keyof typeof mainMenuButtons]
+  );
+}
+
+function shouldBlockDuringTransactionFlow(text: string): boolean {
+  if (text === cancelFlowButton) {
+    return false;
+  }
+
+  return isCommandText(text) || isMainMenuButtonText(text);
+}
+
+async function replyWithActiveFlowWarning(ctx: BotContext): Promise<void> {
+  await ctx.reply(
+    "لديك عملية إضافة جارية الآن.\n\n" +
+      "أكمل الخطوة الحالية أو اضغط ❌ إلغاء العملية.",
+    {
+      reply_markup: createCancelFlowKeyboard(),
+    }
+  );
+}
+
 export function registerTransactionFlowCommand(
   bot: Bot<BotContext>,
   transactionService: TransactionService
@@ -123,12 +151,16 @@ export function registerTransactionFlowCommand(
 
     const text = ctx.message.text.trim();
 
-    if (text === "/cancel") {
-      ctx.session.pendingTransaction = null;
-      await ctx.reply("تم إلغاء العملية الحالية.");
+    if (text === "/cancel" || text === cancelFlowButton) {
+      await cancelTransactionFlow(ctx);
       return;
     }
-
+    
+    if (shouldBlockDuringTransactionFlow(text)) {
+        await replyWithActiveFlowWarning(ctx);
+        return;
+    }
+    
     if (pendingTransaction.step === "amount") {
       const amount = parseAmount(text);
 

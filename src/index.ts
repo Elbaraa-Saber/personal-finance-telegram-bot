@@ -40,9 +40,10 @@ async function main(): Promise<void> {
   );
 
   registerStartCommand(bot, userService);
+  registerTransactionFlowCommand(bot, transactionService);
+  
   registerHelpCommand(bot);
   registerTransactionCommands(bot, transactionService);
-  registerTransactionFlowCommand(bot, transactionService);
   registerReportCommand(bot, reportService);
   registerHistoryCommand(bot, historyService);
   registerDeleteLastCommand(bot, transactionService);
