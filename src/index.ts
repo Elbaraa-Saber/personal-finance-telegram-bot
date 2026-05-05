@@ -44,7 +44,7 @@ async function main(): Promise<void> {
   registerLanguageCommand(bot, userService);
   registerTransactionFlowCommand(bot, transactionService);
   
-  registerHelpCommand(bot);
+  registerHelpCommand(bot, userService);
   registerTransactionCommands(bot, transactionService);
   registerReportCommand(bot, reportService);
   registerHistoryCommand(bot, historyService);

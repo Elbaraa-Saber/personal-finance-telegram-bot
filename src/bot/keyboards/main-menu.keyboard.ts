@@ -1,37 +1,40 @@
 import { Keyboard } from "grammy";
+import { defaultLanguage, supportedLanguages, SupportedLanguage } from "../i18n/language";
+import { getMessages, MenuMessages } from "../i18n/translations";
 
-export const mainMenuButtons = {
-  addIncome: "➕ إضافة دخل",
-  addExpense: "➖ إضافة مصروف",
-  reportAll: "📊 التقرير الكامل",
-  reportDay: "📅 تقرير اليوم",
-  reportWeek: "📆 تقرير الأسبوع",
-  reportMonth: "🗓 تقرير الشهر",
-  reportYear: "📈 تقرير السنة",
-  history: "🧾 آخر العمليات",
-  help: "ℹ️ المساعدة",
-  deleteLast: "🗑 حذف آخر عملية",
-  language: "🌐 اللغة / Language",
+type MenuButtonKey = keyof MenuMessages;
 
-} as const;
+export function createMainMenuKeyboard(
+  language: SupportedLanguage = defaultLanguage
+): Keyboard {
+  const menu = getMessages(language).menu;
 
-export function createMainMenuKeyboard(): Keyboard {
   return new Keyboard()
-    .text(mainMenuButtons.addIncome)
-    .text(mainMenuButtons.addExpense)
+    .text(menu.addIncome)
+    .text(menu.addExpense)
     .row()
-    .text(mainMenuButtons.reportAll)
-    .text(mainMenuButtons.reportDay)
+    .text(menu.reportAll)
+    .text(menu.reportDay)
     .row()
-    .text(mainMenuButtons.reportWeek)
-    .text(mainMenuButtons.reportMonth)
+    .text(menu.reportWeek)
+    .text(menu.reportMonth)
     .row()
-    .text(mainMenuButtons.reportYear)
-    .text(mainMenuButtons.history)
+    .text(menu.reportYear)
+    .text(menu.history)
     .row()
-    .text(mainMenuButtons.deleteLast)
+    .text(menu.help)
+    .text(menu.deleteLast)
     .row()
-    .text(mainMenuButtons.language)
-    .text(mainMenuButtons.help)
+    .text(menu.language)
     .resized();
+}
+
+export function getMainMenuButtonTexts(key: MenuButtonKey): string[] {
+  return supportedLanguages.map((language) => getMessages(language).menu[key]);
+}
+
+export function isMainMenuButtonText(text: string): boolean {
+  return supportedLanguages.some((language) =>
+    Object.values(getMessages(language).menu).includes(text)
+  );
 }

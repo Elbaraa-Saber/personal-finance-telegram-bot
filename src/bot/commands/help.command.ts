@@ -1,94 +1,27 @@
 import { Bot } from "grammy";
-import { createMainMenuKeyboard } from "../keyboards/main-menu.keyboard";
+import { UserService } from "../../application/services/user.service";
 import { config } from "../../config/env";
 import { BotContext } from "../context";
+import { getMessages } from "../i18n/translations";
+import { createMainMenuKeyboard } from "../keyboards/main-menu.keyboard";
 
-function createHelpMessage(): string{
-  return`
-👋 أهلاً بك في بوت إدارة المصاريف
-
-الأوامر المتاحة:
-
-/start
-تسجيل المستخدم وتشغيل البوت
-
-/help
-عرض هذه المساعدة
-
-/income (amount) (category) (history) (note) 
-إضافة دخل
-مثال:
-/income 5000 salary 2026-05-05
-
-/expense (amount) (category) (history) (note)
-إضافة مصروف
-مثال:
-/expense 250 food lunch 2026-05-05 lunch with friends
-
-ملاحظات:
-- التاريخ اختياري.
-- إذا لم تكتب التاريخ، سيتم استخدام تاريخ اليوم تلقائيًا.
-- صيغة التاريخ: YYYY-MM-DD
-- الملاحظة اختيارية أيضا
-
-____________________________________________________
-
-/report
-عرض التقرير الكامل
-
-/report_day
-عرض تقرير اليوم
-
-/report_week
-عرض تقرير الأسبوع الحالي
-
-/report_month
-عرض تقرير الشهر الحالي
-
-/report_year
-عرض تقرير السنة الحالية
-
-____________________________________________________
-
-/history
-عرض آخر 5 عمليات
-
-/history 10
-عرض آخر 10 عمليات، والحد الأقصى 20
-
-/history 2026-05-04
-عرض عمليات يوم محدد
-
-/history_day
-عرض عمليات اليوم
-
-/history_week
-عرض عمليات الأسبوع الحالي
-
-/history_month
-عرض عمليات الشهر الحالي
-
-/history_year
-عرض عمليات السنة الحالية
-/delete_last
-حذف آخر عملية قمت بإضافتها
-
-/language
-إعادة اختيار اللغة
-____________________________________________________
-
-ملاحظات:
-- المبلغ يجب أن يكون رقمًا أكبر من صفر.
-- التصنيف يكون كلمة واحدة مثل: food, salary, transport.
-- يمكنك كتابة ملاحظة بعد التصنيف.
-- العملة الحالية: ${config.defaultCurrency}
-`.trim();
-}
-
-export function registerHelpCommand(bot: Bot<BotContext>): void {
+export function registerHelpCommand(
+  bot: Bot<BotContext>,
+  userService: UserService
+): void {
   bot.command("help", async (ctx) => {
-    await ctx.reply(createHelpMessage(), {
-      reply_markup: createMainMenuKeyboard(),
+    const telegramUser = ctx.from;
+
+    if (!telegramUser) {
+      await ctx.reply("لم أستطع قراءة بيانات المستخدم.");
+      return;
+    }
+    
+    const language = await userService.getUserLanguage(telegramUser.id);
+    const messages = getMessages(language);
+
+    await ctx.reply(messages.help.text(config.defaultCurrency), {
+      reply_markup: createMainMenuKeyboard(language),
     });
   });
 }

@@ -4,7 +4,7 @@ import {
   ReportService,
 } from "../../application/services/report.service";
 import { HistoryService } from "../../application/services/history.service";
-import { mainMenuButtons } from "../keyboards/main-menu.keyboard";
+import { getMainMenuButtonTexts } from "../keyboards/main-menu.keyboard";
 import { formatReport } from "../formatters/report.formatter";
 import { formatTransactionLine } from "../formatters/transaction.formatter";
 import { BotContext } from "../context";
@@ -76,34 +76,31 @@ export function registerMenuCommandHandlers(
   reportService: ReportService,
   historyService: HistoryService
 ): void {
-  bot.hears(mainMenuButtons.reportAll, async (ctx) => {
+  bot.hears(getMainMenuButtonTexts("reportAll"), async (ctx) => {
     await replyWithReport(ctx, reportService, "all");
   });
 
-  bot.hears(mainMenuButtons.reportDay, async (ctx) => {
+  bot.hears(getMainMenuButtonTexts("reportDay"), async (ctx) => {
     await replyWithReport(ctx, reportService, "day");
   });
 
-  bot.hears(mainMenuButtons.reportWeek, async (ctx) => {
+  bot.hears(getMainMenuButtonTexts("reportWeek"), async (ctx) => {
     await replyWithReport(ctx, reportService, "week");
   });
 
-  bot.hears(mainMenuButtons.reportMonth, async (ctx) => {
+  bot.hears(getMainMenuButtonTexts("reportMonth"), async (ctx) => {
     await replyWithReport(ctx, reportService, "month");
   });
 
-  bot.hears(mainMenuButtons.reportYear, async (ctx) => {
+  bot.hears(getMainMenuButtonTexts("reportYear"), async (ctx) => {
     await replyWithReport(ctx, reportService, "year");
   });
 
-  bot.hears(mainMenuButtons.history, async (ctx) => {
+  bot.hears(getMainMenuButtonTexts("history"), async (ctx) => {
     await replyWithRecentHistory(ctx, historyService);
   });
 
-  bot.hears(mainMenuButtons.help, async (ctx) => {
-    await ctx.reply(
-      "اكتب /help لعرض كل الأوامر المتاحة.\n\n" +
-        "يمكنك أيضًا استخدام الأزرار بالأسفل للتقارير وآخر العمليات."
-    );
-  });
+    bot.hears(getMainMenuButtonTexts("help"), async (ctx) => {
+    await ctx.reply("اكتب /help | Введите /help | Type /help");
+    });
 }

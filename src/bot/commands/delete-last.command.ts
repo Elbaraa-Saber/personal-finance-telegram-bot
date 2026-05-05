@@ -1,7 +1,7 @@
 import { Bot } from "grammy";
 import { TransactionService } from "../../application/services/transaction.service";
 import { TransactionDocument } from "../../infrastructure/database/models/transaction.model";
-import { mainMenuButtons } from "../keyboards/main-menu.keyboard";
+import { getMainMenuButtonTexts } from "../keyboards/main-menu.keyboard";
 import {
   createDeleteConfirmationKeyboard,
   deleteConfirmationCallbacks,
@@ -24,7 +24,7 @@ export function registerDeleteLastCommand(
     await askDeleteConfirmation(ctx);
   });
 
-  bot.hears(mainMenuButtons.deleteLast, async (ctx) => {
+  bot.hears(getMainMenuButtonTexts("deleteLast"), async (ctx) => {
     await askDeleteConfirmation(ctx);
   });
 

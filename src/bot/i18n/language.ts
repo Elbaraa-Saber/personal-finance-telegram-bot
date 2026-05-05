@@ -1,5 +1,7 @@
 export type SupportedLanguage = "ar" | "ru" | "en";
 
+export const defaultLanguage: SupportedLanguage = "en";
+
 export const supportedLanguages = ["ar", "ru", "en"] as const;
 
 export function isSupportedLanguage(value: string): value is SupportedLanguage {

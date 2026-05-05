@@ -1,5 +1,5 @@
 import { UserRepository } from "../../infrastructure/repositories/user.repository";
-import { SupportedLanguage } from "../../bot/i18n/language";
+import { defaultLanguage, SupportedLanguage } from "../../bot/i18n/language";
 
 type RegisterTelegramUserData = {
     telegramId: number;
@@ -37,6 +37,11 @@ export class UserService {
         }
 
         return user;
+    }
+    async getUserLanguage(telegramId: number): Promise<SupportedLanguage> {
+        const user = await this.userRepository.findByTelegramId(telegramId);
+
+        return user?.language ?? defaultLanguage;
     }
 
 }

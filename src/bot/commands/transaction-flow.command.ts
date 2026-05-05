@@ -2,9 +2,14 @@ import { Bot } from "grammy";
 import { TransactionService } from "../../application/services/transaction.service";
 import { TransactionType } from "../../infrastructure/database/models/transaction.model";
 import { BotContext } from "../context";
-import { mainMenuButtons } from "../keyboards/main-menu.keyboard";
+
+import {
+  createMainMenuKeyboard,
+  getMainMenuButtonTexts,
+  isMainMenuButtonText,
+} from "../keyboards/main-menu.keyboard";
+
 import { formatCreatedTransaction } from "../formatters/transaction.formatter";
-import { createMainMenuKeyboard } from "../keyboards/main-menu.keyboard";
 import {
   cancelFlowButton,
   createCancelFlowKeyboard,
@@ -97,12 +102,6 @@ function isCommandText(text: string): boolean {
   return text.startsWith("/");
 }
 
-function isMainMenuButtonText(text: string): boolean {
-  return Object.values(mainMenuButtons).includes(
-    text as (typeof mainMenuButtons)[keyof typeof mainMenuButtons]
-  );
-}
-
 function shouldBlockDuringTransactionFlow(text: string): boolean {
   if (text === cancelFlowButton) {
     return false;
@@ -125,11 +124,11 @@ export function registerTransactionFlowCommand(
   bot: Bot<BotContext>,
   transactionService: TransactionService
 ): void {
-  bot.hears(mainMenuButtons.addIncome, async (ctx) => {
+  bot.hears(getMainMenuButtonTexts("addIncome"), async (ctx) => {
     await startTransactionFlow(ctx, "income");
   });
 
-  bot.hears(mainMenuButtons.addExpense, async (ctx) => {
+  bot.hears(getMainMenuButtonTexts("addExpense"), async (ctx) => {
     await startTransactionFlow(ctx, "expense");
   });
 
@@ -155,7 +154,7 @@ export function registerTransactionFlowCommand(
       await cancelTransactionFlow(ctx);
       return;
     }
-    
+
     if (shouldBlockDuringTransactionFlow(text)) {
         await replyWithActiveFlowWarning(ctx);
         return;

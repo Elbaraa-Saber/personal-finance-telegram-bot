@@ -3,6 +3,7 @@ import { UserService } from "../../application/services/user.service";
 import { createMainMenuKeyboard } from "../keyboards/main-menu.keyboard";
 import { BotContext } from "../context";
 import { createLanguageKeyboard } from "../keyboards/language.keyboard";
+import { getMessages } from "../i18n/translations";
 
 type RegisterTelegramUserData = {
   telegramId: number;
@@ -11,7 +12,10 @@ type RegisterTelegramUserData = {
   lastName?: string;
 };
 
-export function registerStartCommand(bot: Bot<BotContext>, userService: UserService): void {
+export function registerStartCommand(
+  bot: Bot<BotContext>,
+  userService: UserService
+): void {
   bot.command("start", async (ctx) => {
     const telegramUser = ctx.from;
 
@@ -36,19 +40,16 @@ export function registerStartCommand(bot: Bot<BotContext>, userService: UserServ
     const user = await userService.registerTelegramUser(userData);
 
     if (!user.language) {
-      await ctx.reply("اختر اللغة / Выберите язык / Choose language:", {
+      await ctx.reply(getMessages().start.chooseLanguage, {
         reply_markup: createLanguageKeyboard(),
       });
       return;
     }
 
-    await ctx.reply(
-      "أهلًا بك 👋\n" +
-      "تم تسجيلك في بوت المصاريف.\n\n" +
-      "استخدم الأزرار بالأسفل أو اكتب /help لعرض الأوامر.",
-      {
-        reply_markup: createMainMenuKeyboard(),
-      }
-    );
+    const messages = getMessages(user.language);
+
+    await ctx.reply(messages.start.welcome, {
+      reply_markup: createMainMenuKeyboard(user.language),
+    });
   });
 }
