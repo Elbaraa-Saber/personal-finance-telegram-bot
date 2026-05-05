@@ -66,28 +66,46 @@ export class TransactionRepository {
     return this.toTransactionSummary(result[0]);
   }
 
-    async getSummaryByUserIdAndDateRange(
-        userId: Types.ObjectId,
-        startDate: Date,
-        endDate: Date
-    ): Promise<TransactionSummary> {
-        const result = await TransactionModel.aggregate<AggregatedTransactionSummary>(
-            [
-            {
-                $match: {
-                userId,
-                transactionDate: {
-                    $gte: startDate,
-                    $lt: endDate,
-                },
-                },
-            },
-            this.createSummaryGroupStage(),
-            ]
-        );
+  async getSummaryByUserIdAndDateRange(
+  userId: Types.ObjectId,
+  startDate: Date,
+  endDate: Date
+  ): Promise<TransactionSummary> {
+      const result = await TransactionModel.aggregate<AggregatedTransactionSummary>(
+          [
+          {
+              $match: {
+              userId,
+              transactionDate: {
+                  $gte: startDate,
+                  $lt: endDate,
+              },
+              },
+          },
+          this.createSummaryGroupStage(),
+          ]
+      );
 
-        return this.toTransactionSummary(result[0]);
-    }
+      return this.toTransactionSummary(result[0]);
+  }
+
+  async findByUserIdAndDateRange(
+  userId: Types.ObjectId,
+  startDate: Date,
+  endDate: Date,
+  limit: number
+  ): Promise<TransactionDocument[]> {
+  return TransactionModel.find({
+    userId,
+    transactionDate: {
+      $gte: startDate,
+      $lt: endDate,
+    },
+  })
+    .sort({ transactionDate: -1, createdAt: -1 })
+    .limit(limit)
+    .exec();
+  }
 
   private createSummaryGroupStage() {
     return {
