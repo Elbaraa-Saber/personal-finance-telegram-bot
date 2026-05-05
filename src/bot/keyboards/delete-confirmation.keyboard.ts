@@ -1,12 +1,21 @@
 import { InlineKeyboard } from "grammy";
+import {
+  defaultLanguage,
+  SupportedLanguage,
+} from "../i18n/language";
+import { getMessages } from "../i18n/translations";
 
 export const deleteConfirmationCallbacks = {
   confirmDeleteLast: "delete_last:confirm",
   cancelDeleteLast: "delete_last:cancel",
 } as const;
 
-export function createDeleteConfirmationKeyboard(): InlineKeyboard {
+export function createDeleteConfirmationKeyboard(
+  language: SupportedLanguage = defaultLanguage
+): InlineKeyboard {
+  const messages = getMessages(language);
+
   return new InlineKeyboard()
-    .text("نعم، احذف", deleteConfirmationCallbacks.confirmDeleteLast)
-    .text("إلغاء", deleteConfirmationCallbacks.cancelDeleteLast);
+    .text(messages.delete.confirmButton, deleteConfirmationCallbacks.confirmDeleteLast)
+    .text(messages.delete.cancelButton, deleteConfirmationCallbacks.cancelDeleteLast);
 }

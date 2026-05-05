@@ -1,31 +1,52 @@
 import { Bot } from "grammy";
 import { TransactionService } from "../../application/services/transaction.service";
-import { TransactionDocument } from "../../infrastructure/database/models/transaction.model";
+import { UserService } from "../../application/services/user.service";
+import { BotContext } from "../context";
+import { defaultLanguage, SupportedLanguage } from "../i18n/language";
+import { getMessages } from "../i18n/translations";
+import { formatDeletedTransaction } from "../formatters/transaction.formatter";
 import { getMainMenuButtonTexts } from "../keyboards/main-menu.keyboard";
 import {
   createDeleteConfirmationKeyboard,
   deleteConfirmationCallbacks,
 } from "../keyboards/delete-confirmation.keyboard";
-import { formatDeletedTransaction } from "../formatters/transaction.formatter";
-import { BotContext } from "../context";
 
+async function getLanguageForContext(
+  ctx: BotContext,
+  userService: UserService
+): Promise<SupportedLanguage> {
+  const telegramUser = ctx.from;
 
-async function askDeleteConfirmation(ctx: BotContext): Promise<void> {
-  await ctx.reply("هل أنت متأكد أنك تريد حذف آخر عملية؟", {
-    reply_markup: createDeleteConfirmationKeyboard(),
+  if (!telegramUser) {
+    return defaultLanguage;
+  }
+
+  return userService.getUserLanguage(telegramUser.id);
+}
+
+async function askDeleteConfirmation(
+  ctx: BotContext,
+  userService: UserService
+): Promise<void> {
+  const language = await getLanguageForContext(ctx, userService);
+  const messages = getMessages(language);
+
+  await ctx.reply(messages.delete.confirmation, {
+    reply_markup: createDeleteConfirmationKeyboard(language),
   });
 }
 
 export function registerDeleteLastCommand(
   bot: Bot<BotContext>,
-  transactionService: TransactionService
+  transactionService: TransactionService,
+  userService: UserService
 ): void {
   bot.command("delete_last", async (ctx) => {
-    await askDeleteConfirmation(ctx);
+    await askDeleteConfirmation(ctx, userService);
   });
 
   bot.hears(getMainMenuButtonTexts("deleteLast"), async (ctx) => {
-    await askDeleteConfirmation(ctx);
+    await askDeleteConfirmation(ctx, userService);
   });
 
   bot.callbackQuery(
@@ -33,7 +54,10 @@ export function registerDeleteLastCommand(
     async (ctx) => {
       await ctx.answerCallbackQuery();
 
-      await ctx.editMessageText("تم إلغاء الحذف.");
+      const language = await getLanguageForContext(ctx, userService);
+      const messages = getMessages(language);
+
+      await ctx.editMessageText(messages.delete.cancelled);
     }
   );
 
@@ -43,9 +67,11 @@ export function registerDeleteLastCommand(
       await ctx.answerCallbackQuery();
 
       const telegramUser = ctx.from;
+      const language = await getLanguageForContext(ctx, userService);
+      const messages = getMessages(language);
 
       if (!telegramUser) {
-        await ctx.editMessageText("لم أستطع قراءة بيانات المستخدم.");
+        await ctx.editMessageText(messages.delete.readUserError);
         return;
       }
 
@@ -53,7 +79,9 @@ export function registerDeleteLastCommand(
         const deletedTransaction =
           await transactionService.deleteLastTransaction(telegramUser.id);
 
-        await ctx.editMessageText(formatDeletedTransaction(deletedTransaction));
+        await ctx.editMessageText(
+          formatDeletedTransaction(deletedTransaction, language)
+        );
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "حدث خطأ غير متوقع.";

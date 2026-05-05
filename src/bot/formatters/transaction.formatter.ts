@@ -30,17 +30,27 @@ export function formatTransactionLine(
 }
 
 export function formatDeletedTransaction(
-  transaction: TransactionDocument
+  transaction: TransactionDocument,
+  language: SupportedLanguage
 ): string {
-  const label = transaction.type === "income" ? "دخل" : "مصروف";
+  const messages = getMessages(language);
+
+  const label =
+    transaction.type === "income"
+      ? messages.transaction.income
+      : messages.transaction.expense;
+
   const icon = transaction.type === "income" ? "💰" : "💸";
-  const noteText = transaction.note ? `\nملاحظة: ${transaction.note}` : "";
+
+  const noteText = transaction.note
+    ? `\n${messages.transaction.note}: ${transaction.note}`
+    : "";
 
   return (
-    `${icon} تم حذف آخر ${label}\n\n` +
-    `المبلغ: ${formatAmount(transaction.amount)}\n` +
-    `التصنيف: ${transaction.category}\n` +
-    `التاريخ: ${formatDate(transaction.transactionDate)}` +
+    `${icon} ${messages.delete.deletedSuccessfully(label)}\n\n` +
+    `${messages.delete.amount}: ${formatAmount(transaction.amount)}\n` +
+    `${messages.delete.category}: ${transaction.category}\n` +
+    `${messages.delete.date}: ${formatDate(transaction.transactionDate)}` +
     noteText
   );
 }

@@ -64,6 +64,18 @@ type TransactionFlowMessages = {
   cancelButton: string;
 };
 
+type DeleteMessages = {
+  confirmation: string;
+  confirmButton: string;
+  cancelButton: string;
+  cancelled: string;
+  deletedSuccessfully: (type: string) => string;
+  amount: string;
+  category: string;
+  date: string;
+  readUserError: string;
+};
+
 type Messages = {
   start: {
     chooseLanguage: string;
@@ -82,6 +94,7 @@ type Messages = {
   transaction: TransactionMessages;
   history: HistoryMessages;
   transactionFlow: TransactionFlowMessages;
+  delete: DeleteMessages;
 };
 
 export const translations: Record<SupportedLanguage, Messages> = {
@@ -179,6 +192,17 @@ export const translations: Record<SupportedLanguage, Messages> = {
         readUserError: "لم أستطع قراءة بيانات المستخدم.",
 
         cancelButton: "❌ إلغاء العملية",
+    },
+    delete: {
+        confirmation: "هل أنت متأكد أنك تريد حذف آخر عملية؟",
+        confirmButton: "نعم، احذف",
+        cancelButton: "إلغاء",
+        cancelled: "تم إلغاء الحذف.",
+        deletedSuccessfully: (type: string) => `تم حذف آخر ${type}`,
+        amount: "المبلغ",
+        category: "التصنيف",
+        date: "التاريخ",
+        readUserError: "لم أستطع قراءة بيانات المستخدم.",
     },
 
     help: {
@@ -356,6 +380,17 @@ export const translations: Record<SupportedLanguage, Messages> = {
         cancelButton: "❌ Отмена",
     },
 
+    delete: {
+        confirmation: "Вы уверены, что хотите удалить последнюю операцию?",
+        confirmButton: "Да, удалить",
+        cancelButton: "Отмена",
+        cancelled: "Удаление отменено.",
+        deletedSuccessfully: (type: string) => `Последняя операция удалена: ${type}`,
+        amount: "Сумма",
+        category: "Категория",
+        date: "Дата",
+        readUserError: "Не удалось прочитать данные пользователя.",
+    },
     help: {
       text: (currency: string) =>
         `
@@ -528,6 +563,17 @@ export const translations: Record<SupportedLanguage, Messages> = {
         readUserError: "Could not read user data.",
 
         cancelButton: "❌ Cancel",
+    },
+    delete: {
+        confirmation: "Are you sure you want to delete the last transaction?",
+        confirmButton: "Yes, delete",
+        cancelButton: "Cancel",
+        cancelled: "Deletion cancelled.",
+        deletedSuccessfully: (type: string) => `Last ${type} deleted`,
+        amount: "Amount",
+        category: "Category",
+        date: "Date",
+        readUserError: "Could not read user data.",
     },
     help: {
       text: (currency: string) =>

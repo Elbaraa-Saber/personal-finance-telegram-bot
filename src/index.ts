@@ -48,7 +48,7 @@ async function main(): Promise<void> {
   registerTransactionCommands(bot, transactionService);
   registerReportCommand(bot, reportService, userService);
   registerHistoryCommand(bot, historyService, userService);
-  registerDeleteLastCommand(bot, transactionService);
+  registerDeleteLastCommand(bot, transactionService, userService);
   registerMenuCommandHandlers(
     bot,
     reportService,
