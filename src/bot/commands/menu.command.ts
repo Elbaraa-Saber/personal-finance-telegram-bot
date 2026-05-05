@@ -15,6 +15,7 @@ import { config } from "../../config/env";
 async function replyWithReport(
   ctx: Context,
   reportService: ReportService,
+  userService: UserService,
   period: ReportPeriod
 ): Promise<void> {
   const telegramUser = ctx.from;
@@ -25,12 +26,14 @@ async function replyWithReport(
   }
 
   try {
+    const language = await userService.getUserLanguage(telegramUser.id);
+
     const report = await reportService.getUserSummaryForPeriod(
       telegramUser.id,
       period
     );
 
-    await ctx.reply(formatReport(report));
+    await ctx.reply(formatReport(report, language));
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "حدث خطأ غير متوقع.";
@@ -41,7 +44,8 @@ async function replyWithReport(
 
 async function replyWithRecentHistory(
   ctx: Context,
-  historyService: HistoryService
+  historyService: HistoryService,
+  userService: UserService
 ): Promise<void> {
   const telegramUser = ctx.from;
 
@@ -49,6 +53,8 @@ async function replyWithRecentHistory(
     await ctx.reply("لم أستطع قراءة بيانات المستخدم.");
     return;
   }
+  const language = await userService.getUserLanguage(telegramUser.id);
+  const messages = getMessages(language);
 
   try {
     const transactions = await historyService.getRecentTransactions(
@@ -57,15 +63,19 @@ async function replyWithRecentHistory(
     );
 
     if (transactions.length === 0) {
-      await ctx.reply("لا توجد عمليات بعد.");
+      await ctx.reply(messages.history.empty);
       return;
     }
 
     const historyText = transactions
-      .map((transaction, index) => formatTransactionLine(transaction, index))
-      .join("\n\n");
+        .map((transaction, index) =>
+            formatTransactionLine(transaction, index, language)
+        )
+        .join("\n\n");
 
-    await ctx.reply(`🧾 آخر ${transactions.length} عملية\n\n${historyText}`);
+    await ctx.reply(
+        `${messages.history.titles.recent(transactions.length)}\n\n${historyText}`
+    );
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "حدث خطأ غير متوقع.";
@@ -81,27 +91,27 @@ export function registerMenuCommandHandlers(
   userService: UserService
 ): void {
   bot.hears(getMainMenuButtonTexts("reportAll"), async (ctx) => {
-    await replyWithReport(ctx, reportService, "all");
+    await replyWithReport(ctx, reportService, userService, "all");
   });
 
   bot.hears(getMainMenuButtonTexts("reportDay"), async (ctx) => {
-    await replyWithReport(ctx, reportService, "day");
+    await replyWithReport(ctx, reportService, userService, "day");
   });
 
   bot.hears(getMainMenuButtonTexts("reportWeek"), async (ctx) => {
-    await replyWithReport(ctx, reportService, "week");
+    await replyWithReport(ctx, reportService, userService, "week");
   });
 
   bot.hears(getMainMenuButtonTexts("reportMonth"), async (ctx) => {
-    await replyWithReport(ctx, reportService, "month");
+    await replyWithReport(ctx, reportService, userService, "month");
   });
 
   bot.hears(getMainMenuButtonTexts("reportYear"), async (ctx) => {
-    await replyWithReport(ctx, reportService, "year");
+    await replyWithReport(ctx, reportService, userService, "year");
   });
 
   bot.hears(getMainMenuButtonTexts("history"), async (ctx) => {
-    await replyWithRecentHistory(ctx, historyService);
+    await replyWithRecentHistory(ctx, historyService, userService);
   });
 
    bot.hears(getMainMenuButtonTexts("help"), async (ctx) => {

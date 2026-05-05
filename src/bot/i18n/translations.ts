@@ -14,6 +14,39 @@ export type MenuMessages = {
   language: string;
 };
 
+type ReportMessages = {
+  titles: {
+    all: string;
+    day: string;
+    week: string;
+    month: string;
+    year: string;
+  };
+  totalIncome: string;
+  totalExpense: string;
+  balance: string;
+  transactionCount: string;
+};
+
+type TransactionMessages = {
+  income: string;
+  expense: string;
+  note: string;
+};
+
+type HistoryMessages = {
+  titles: {
+    recent: (count: number) => string;
+    date: (date: string) => string;
+    day: string;
+    week: string;
+    month: string;
+    year: string;
+  };
+  empty: string;
+  invalidUsage: string;
+};
+
 type Messages = {
   start: {
     chooseLanguage: string;
@@ -28,6 +61,9 @@ type Messages = {
     text: (currency: string) => string;
   };
   menu: MenuMessages;
+  report: ReportMessages;
+  transaction: TransactionMessages;
+  history: HistoryMessages;
 };
 
 export const translations: Record<SupportedLanguage, Messages> = {
@@ -44,6 +80,43 @@ export const translations: Record<SupportedLanguage, Messages> = {
       ready: "يمكنك الآن استخدام البوت من القائمة.",
       unsupported: "هذه اللغة غير مدعومة.",
     },
+    report: {
+        titles: {
+            all: "📊 التقرير الكامل",
+            day: "📊 تقرير اليوم",
+            week: "📊 تقرير هذا الأسبوع",
+            month: "📊 تقرير هذا الشهر",
+            year: "📊 تقرير هذه السنة",
+        },
+        totalIncome: "إجمالي الدخل",
+        totalExpense: "إجمالي المصروف",
+        balance: "الرصيد",
+        transactionCount: "عدد العمليات",
+    },
+
+    transaction: {
+        income: "دخل",
+        expense: "مصروف",
+        note: "ملاحظة",
+        },
+
+        history: {
+        titles: {
+            recent: (count: number) => `🧾 آخر ${count} عملية`,
+            date: (date: string) => `🧾 عمليات يوم ${date}`,
+            day: "🧾 عمليات اليوم",
+            week: "🧾 عمليات هذا الأسبوع",
+            month: "🧾 عمليات هذا الشهر",
+            year: "🧾 عمليات هذه السنة",
+        },
+        empty: "لا توجد عمليات في هذه الفترة.",
+        invalidUsage:
+            "استخدم الأمر بهذا الشكل:\n" +
+            "/history\n" +
+            "/history 10\n" +
+            "/history 2026-05-04",
+    },
+
     help: {
       text: (currency: string) =>
         `
@@ -134,6 +207,43 @@ export const translations: Record<SupportedLanguage, Messages> = {
       ready: "Теперь вы можете пользоваться ботом из меню.",
       unsupported: "Этот язык не поддерживается.",
     },
+    report: {
+        titles: {
+            all: "📊 Общий отчёт",
+            day: "📊 Отчёт за сегодня",
+            week: "📊 Отчёт за эту неделю",
+            month: "📊 Отчёт за этот месяц",
+            year: "📊 Отчёт за этот год",
+        },
+        totalIncome: "Общий доход",
+        totalExpense: "Общие расходы",
+        balance: "Баланс",
+        transactionCount: "Количество операций",
+    },
+
+    transaction: {
+        income: "Доход",
+        expense: "Расход",
+        note: "Примечание",
+        },
+
+        history: {
+        titles: {
+            recent: (count: number) => `🧾 Последние операции: ${count}`,
+            date: (date: string) => `🧾 Операции за ${date}`,
+            day: "🧾 Операции за сегодня",
+            week: "🧾 Операции за эту неделю",
+            month: "🧾 Операции за этот месяц",
+            year: "🧾 Операции за этот год",
+        },
+        empty: "В этой период нет операций.",
+        invalidUsage:
+            "Используйте команду так:\n" +
+            "/history\n" +
+            "/history 10\n" +
+            "/history 2026-05-04",
+    },
+
     help: {
       text: (currency: string) =>
         `
@@ -224,6 +334,43 @@ export const translations: Record<SupportedLanguage, Messages> = {
       ready: "You can now use the bot from the menu.",
       unsupported: "Unsupported language.",
     },
+    report: {
+        titles: {
+        all: "📊 Full report",
+        day: "📊 Today's report",
+        week: "📊 This week's report",
+        month: "📊 This month's report",
+        year: "📊 This year's report",
+        },
+        totalIncome: "Total income",
+        totalExpense: "Total expense",
+        balance: "Balance",
+        transactionCount: "Transaction count",
+    },
+
+    transaction: {
+        income: "Income",
+        expense: "Expense",
+        note: "Note",
+        },
+
+        history: {
+        titles: {
+            recent: (count: number) => `🧾 Last ${count} transactions`,
+            date: (date: string) => `🧾 Transactions for ${date}`,
+            day: "🧾 Today's transactions",
+            week: "🧾 This week's transactions",
+            month: "🧾 This month's transactions",
+            year: "🧾 This year's transactions",
+        },
+        empty: "There are no transactions in this period.",
+        invalidUsage:
+            "Use the command like this:\n" +
+            "/history\n" +
+            "/history 10\n" +
+            "/history 2026-05-04",
+    },
+
     help: {
       text: (currency: string) =>
         `

@@ -2,7 +2,7 @@ import { Bot } from "grammy";
 import { TransactionService } from "../../application/services/transaction.service";
 import { TransactionType } from "../../infrastructure/database/models/transaction.model";
 import { BotContext } from "../context";
-
+import { UserService } from "../../application/services/user.service";
 import {
   createMainMenuKeyboard,
   getMainMenuButtonTexts,
@@ -83,10 +83,15 @@ async function startTransactionFlow(
   );
 }
 
-async function cancelTransactionFlow(ctx: BotContext): Promise<void> {
+async function cancelTransactionFlow(
+  ctx: BotContext,
+  userService: UserService
+): Promise<void> {
+  const language = await getLanguageForContext(ctx, userService);
+
   if (!ctx.session.pendingTransaction) {
     await ctx.reply("لا توجد عملية جارية لإلغائها.", {
-      reply_markup: createMainMenuKeyboard(),
+      reply_markup: createMainMenuKeyboard(language),
     });
     return;
   }
@@ -94,7 +99,7 @@ async function cancelTransactionFlow(ctx: BotContext): Promise<void> {
   ctx.session.pendingTransaction = null;
 
   await ctx.reply("تم إلغاء العملية الحالية.", {
-    reply_markup: createMainMenuKeyboard(),
+    reply_markup: createMainMenuKeyboard(language),
   });
 }
 
@@ -120,9 +125,23 @@ async function replyWithActiveFlowWarning(ctx: BotContext): Promise<void> {
   );
 }
 
+async function getLanguageForContext(
+  ctx: BotContext,
+  userService: UserService
+) {
+  const telegramUser = ctx.from;
+
+  if (!telegramUser) {
+    return undefined;
+  }
+
+  return userService.getUserLanguage(telegramUser.id);
+}
+
 export function registerTransactionFlowCommand(
   bot: Bot<BotContext>,
-  transactionService: TransactionService
+  transactionService: TransactionService,
+  userService: UserService
 ): void {
   bot.hears(getMainMenuButtonTexts("addIncome"), async (ctx) => {
     await startTransactionFlow(ctx, "income");
@@ -133,11 +152,11 @@ export function registerTransactionFlowCommand(
   });
 
   bot.command("cancel", async (ctx) => {
-    await cancelTransactionFlow(ctx);
+    await cancelTransactionFlow(ctx, userService);
   });
 
   bot.hears(cancelFlowButton, async (ctx) => {
-        await cancelTransactionFlow(ctx);
+        await cancelTransactionFlow(ctx, userService);
   });
 
   bot.on("message:text", async (ctx, next) => {
@@ -151,7 +170,7 @@ export function registerTransactionFlowCommand(
     const text = ctx.message.text.trim();
 
     if (text === "/cancel" || text === cancelFlowButton) {
-      await cancelTransactionFlow(ctx);
+      await cancelTransactionFlow(ctx, userService);
       return;
     }
 
@@ -283,8 +302,10 @@ export function registerTransactionFlowCommand(
 
         ctx.session.pendingTransaction = null;
 
+        const language = await userService.getUserLanguage(ctx.from.id);
+
         await ctx.reply(formatCreatedTransaction(transaction), {
-            reply_markup: createMainMenuKeyboard(),
+        reply_markup: createMainMenuKeyboard(language),
         });
       } catch (error) {
         ctx.session.pendingTransaction = null;
@@ -298,3 +319,4 @@ export function registerTransactionFlowCommand(
     }
   });
 }
+

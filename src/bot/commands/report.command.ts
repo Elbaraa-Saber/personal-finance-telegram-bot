@@ -5,10 +5,12 @@ import {
 } from "../../application/services/report.service";
 import { formatReport } from "../formatters/report.formatter";
 import { BotContext } from "../context";
+import { UserService } from "../../application/services/user.service";
 
 async function replyWithReport(
   ctx: Context,
   reportService: ReportService,
+  userService: UserService,
   period: ReportPeriod
 ): Promise<void> {
   const telegramUser = ctx.from;
@@ -18,13 +20,15 @@ async function replyWithReport(
     return;
   }
 
+  const language = await userService.getUserLanguage(telegramUser.id);
+
   try {
     const report = await reportService.getUserSummaryForPeriod(
       telegramUser.id,
       period
     );
 
-    await ctx.reply(formatReport(report));
+    await ctx.reply(formatReport(report, language));
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "حدث خطأ غير متوقع.";
@@ -35,25 +39,26 @@ async function replyWithReport(
 
 export function registerReportCommand(
   bot: Bot<BotContext>,
-  reportService: ReportService
+  reportService: ReportService,
+  userService: UserService
 ): void {
   bot.command("report", async (ctx) => {
-    await replyWithReport(ctx, reportService, "all");
+    await replyWithReport(ctx, reportService, userService, "all");
   });
 
   bot.command("report_day", async (ctx) => {
-    await replyWithReport(ctx, reportService, "day");
+    await replyWithReport(ctx, reportService, userService, "day");
   });
 
   bot.command("report_week", async (ctx) => {
-    await replyWithReport(ctx, reportService, "week");
+    await replyWithReport(ctx, reportService, userService, "week");
   });
 
   bot.command("report_month", async (ctx) => {
-    await replyWithReport(ctx, reportService, "month");
+    await replyWithReport(ctx, reportService, userService, "month");
   });
 
   bot.command("report_year", async (ctx) => {
-    await replyWithReport(ctx, reportService, "year");
+    await replyWithReport(ctx, reportService, userService, "year");
   });
 }

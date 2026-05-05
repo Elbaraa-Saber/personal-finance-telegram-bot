@@ -7,6 +7,9 @@ import { TransactionDocument } from "../../infrastructure/database/models/transa
 import { formatDate } from "../formatters/date.formatter";
 import { formatTransactionLine } from "../formatters/transaction.formatter";
 import { BotContext } from "../context";
+import { UserService } from "../../application/services/user.service";
+import { SupportedLanguage } from "../i18n/language";
+import { getMessages } from "../i18n/translations";
 
 type ParsedHistoryArgument =
   | { type: "default" }
@@ -79,17 +82,20 @@ function parseHistoryArgument(text: string | undefined): ParsedHistoryArgument {
 async function replyWithTransactions(
   ctx: Context,
   title: string,
-  transactions: TransactionDocument[]
+  transactions: TransactionDocument[],
+  language: SupportedLanguage
 ): Promise<void> {
+  const messages = getMessages(language);
+
   if (transactions.length === 0) {
-    await ctx.reply(
-      `${title}\n\nلا توجد عمليات في هذه الفترة.`
-    );
+    await ctx.reply(`${title}\n\n${messages.history.empty}`);
     return;
   }
 
   const historyText = transactions
-    .map((transaction, index) => formatTransactionLine(transaction, index))
+    .map((transaction, index) =>
+      formatTransactionLine(transaction, index, language)
+    )
     .join("\n\n");
 
   await ctx.reply(`${title}\n\n${historyText}`);
@@ -98,8 +104,9 @@ async function replyWithTransactions(
 async function replyWithPeriodHistory(
   ctx: Context,
   historyService: HistoryService,
+  userService: UserService,
   period: HistoryPeriod,
-  title: string
+  titleKey: HistoryPeriod
 ): Promise<void> {
   const telegramUser = ctx.from;
 
@@ -109,12 +116,20 @@ async function replyWithPeriodHistory(
   }
 
   try {
+    const language = await userService.getUserLanguage(telegramUser.id);
+    const messages = getMessages(language);
+
     const transactions = await historyService.getTransactionsForPeriod(
       telegramUser.id,
       period
     );
 
-    await replyWithTransactions(ctx, title, transactions);
+    await replyWithTransactions(
+      ctx,
+      messages.history.titles[titleKey],
+      transactions,
+      language
+    );
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "حدث خطأ غير متوقع.";
@@ -125,7 +140,8 @@ async function replyWithPeriodHistory(
 
 export function registerHistoryCommand(
   bot: Bot<BotContext>,
-  historyService: HistoryService
+  historyService: HistoryService,
+  userService: UserService
 ): void {
   bot.command("history", async (ctx) => {
     const telegramUser = ctx.from;
@@ -135,15 +151,13 @@ export function registerHistoryCommand(
       return;
     }
 
+    const language = await userService.getUserLanguage(telegramUser.id);
+    const messages = getMessages(language);
+
     const parsedArgument = parseHistoryArgument(ctx.message?.text);
 
     if (parsedArgument.type === "invalid") {
-      await ctx.reply(
-        "استخدم الأمر بهذا الشكل:\n" +
-          "/history\n" +
-          "/history 10\n" +
-          "/history 2026-05-04"
-      );
+      await ctx.reply(messages.history.invalidUsage);
       return;
     }
 
@@ -156,8 +170,9 @@ export function registerHistoryCommand(
 
         await replyWithTransactions(
           ctx,
-          `🧾 آخر ${transactions.length} عملية`,
-          transactions
+          messages.history.titles.recent(transactions.length),
+          transactions,
+          language
         );
         return;
       }
@@ -168,10 +183,13 @@ export function registerHistoryCommand(
           parsedArgument.date
         );
 
+        const dateText = formatDate(parsedArgument.date);
+
         await replyWithTransactions(
           ctx,
-          `🧾 عمليات يوم ${formatDate(parsedArgument.date)}`,
-          transactions
+          messages.history.titles.date(dateText),
+          transactions,
+          language
         );
         return;
       }
@@ -182,8 +200,9 @@ export function registerHistoryCommand(
 
       await replyWithTransactions(
         ctx,
-        `🧾 آخر ${transactions.length} عملية`,
-        transactions
+        messages.history.titles.recent(transactions.length),
+        transactions,
+        language
       );
     } catch (error) {
       const message =
@@ -194,38 +213,24 @@ export function registerHistoryCommand(
   });
 
   bot.command("history_day", async (ctx) => {
-    await replyWithPeriodHistory(
-      ctx,
-      historyService,
-      "day",
-      "🧾 عمليات اليوم"
-    );
+    await replyWithPeriodHistory(ctx, historyService, userService, "day", "day");
   });
 
   bot.command("history_week", async (ctx) => {
-    await replyWithPeriodHistory(
-      ctx,
-      historyService,
-      "week",
-      "🧾 عمليات هذا الأسبوع"
-    );
+    await replyWithPeriodHistory(ctx, historyService, userService, "week", "week");
   });
 
   bot.command("history_month", async (ctx) => {
     await replyWithPeriodHistory(
       ctx,
       historyService,
+      userService,
       "month",
-      "🧾 عمليات هذا الشهر"
+      "month"
     );
   });
 
   bot.command("history_year", async (ctx) => {
-    await replyWithPeriodHistory(
-      ctx,
-      historyService,
-      "year",
-      "🧾 عمليات هذه السنة"
-    );
+    await replyWithPeriodHistory(ctx, historyService, userService, "year", "year");
   });
 }

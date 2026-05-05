@@ -42,12 +42,12 @@ async function main(): Promise<void> {
 
   registerStartCommand(bot, userService);
   registerLanguageCommand(bot, userService);
-  registerTransactionFlowCommand(bot, transactionService);
+  registerTransactionFlowCommand(bot, transactionService, userService);
   
   registerHelpCommand(bot, userService);
   registerTransactionCommands(bot, transactionService);
-  registerReportCommand(bot, reportService);
-  registerHistoryCommand(bot, historyService);
+  registerReportCommand(bot, reportService, userService);
+  registerHistoryCommand(bot, historyService, userService);
   registerDeleteLastCommand(bot, transactionService);
   registerMenuCommandHandlers(
     bot,
@@ -55,7 +55,7 @@ async function main(): Promise<void> {
     historyService,
     userService
   );
-  
+
   bot.start({
     onStart: () => {
       console.log("🤖 Bot is running...");

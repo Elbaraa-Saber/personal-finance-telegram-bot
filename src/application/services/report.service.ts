@@ -7,13 +7,12 @@ import { UserRepository } from "../../infrastructure/repositories/user.repositor
 export type ReportPeriod = "all" | "day" | "week" | "month" | "year";
 
 export type ReportResult = TransactionSummary & {
-  title: string;
+  period: ReportPeriod;
 };
 
 type DateRange = {
   startDate: Date;
   endDate: Date;
-  title: string;
 };
 
 export class ReportService {
@@ -48,7 +47,7 @@ export class ReportService {
       );
 
       return {
-        title: "📊 التقرير الكامل",
+        period,
         ...summary,
       };
     }
@@ -62,7 +61,7 @@ export class ReportService {
       );
 
     return {
-      title: dateRange.title,
+      period,
       ...summary,
     };
   }
@@ -86,7 +85,6 @@ export class ReportService {
       return {
         startDate,
         endDate,
-        title: "📊 تقرير اليوم",
       };
     }
 
@@ -106,7 +104,6 @@ export class ReportService {
       return {
         startDate,
         endDate,
-        title: "📊 تقرير هذا الأسبوع",
       };
     }
 
@@ -117,7 +114,6 @@ export class ReportService {
       return {
         startDate,
         endDate,
-        title: "📊 تقرير هذا الشهر",
       };
     }
 
@@ -127,7 +123,6 @@ export class ReportService {
     return {
       startDate,
       endDate,
-      title: "📊 تقرير هذه السنة",
     };
   }
 }
