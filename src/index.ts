@@ -14,6 +14,7 @@ import { registerDeleteLastCommand } from "./bot/commands/delete-last.command";
 import { registerHelpCommand } from "./bot/commands/help.command";
 import { registerMenuCommandHandlers } from "./bot/commands/menu.command";
 import { registerTransactionFlowCommand } from "./bot/commands/transaction-flow.command";
+import { registerLanguageCommand } from "./bot/commands/language.command";
 
 async function main(): Promise<void> {
   await connectToDatabase();
@@ -40,6 +41,7 @@ async function main(): Promise<void> {
   );
 
   registerStartCommand(bot, userService);
+  registerLanguageCommand(bot, userService);
   registerTransactionFlowCommand(bot, transactionService);
   
   registerHelpCommand(bot);

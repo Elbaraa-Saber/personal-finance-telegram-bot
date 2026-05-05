@@ -2,6 +2,7 @@ import { Bot } from "grammy";
 import { UserService } from "../../application/services/user.service";
 import { createMainMenuKeyboard } from "../keyboards/main-menu.keyboard";
 import { BotContext } from "../context";
+import { createLanguageKeyboard } from "../keyboards/language.keyboard";
 
 type RegisterTelegramUserData = {
   telegramId: number;
@@ -32,7 +33,14 @@ export function registerStartCommand(bot: Bot<BotContext>, userService: UserServ
       userData.lastName = telegramUser.last_name;
     }
 
-    await userService.registerTelegramUser(userData);
+    const user = await userService.registerTelegramUser(userData);
+
+    if (!user.language) {
+      await ctx.reply("اختر اللغة / Выберите язык / Choose language:", {
+        reply_markup: createLanguageKeyboard(),
+      });
+      return;
+    }
 
     await ctx.reply(
       "أهلًا بك 👋\n" +

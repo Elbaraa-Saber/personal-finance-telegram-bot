@@ -11,6 +11,8 @@ export const mainMenuButtons = {
   history: "🧾 آخر العمليات",
   help: "ℹ️ المساعدة",
   deleteLast: "🗑 حذف آخر عملية",
+  language: "🌐 اللغة / Language",
+
 } as const;
 
 export function createMainMenuKeyboard(): Keyboard {
@@ -29,6 +31,7 @@ export function createMainMenuKeyboard(): Keyboard {
     .row()
     .text(mainMenuButtons.deleteLast)
     .row()
+    .text(mainMenuButtons.language)
     .text(mainMenuButtons.help)
     .resized();
 }

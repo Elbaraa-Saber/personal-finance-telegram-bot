@@ -1,11 +1,12 @@
-import { LargeNumberLike } from "node:crypto";
 import { UserDocument, UserModel } from "../database/models/user.model";
+import { SupportedLanguage } from "../../bot/i18n/language";
 
 type CreateUserData = {
     telegramId: number;
     username?: string;
     firstName?: string;
     lastName?: string;
+    language?: SupportedLanguage;
 };
 
 export class UserRepository {
@@ -15,5 +16,16 @@ export class UserRepository {
 
     async create(data: CreateUserData): Promise<UserDocument>{
         return UserModel.create(data);
+    }
+
+    async updateLanguageByTelegramId(
+        telegramId: number,
+        language: SupportedLanguage
+    ): Promise<UserDocument | null> {
+        return UserModel.findOneAndUpdate(
+            { telegramId },
+            { $set: { language } },
+            { new: true }
+        ).exec();
     }
 }

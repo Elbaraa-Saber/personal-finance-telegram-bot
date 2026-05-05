@@ -1,4 +1,5 @@
 import { model, Schema, Types } from "mongoose";
+import { SupportedLanguage } from "../../../bot/i18n/language";
 
 export interface UserDocument {
   _id: Types.ObjectId;
@@ -8,6 +9,7 @@ export interface UserDocument {
   lastName?: string;
   createdAt: Date;
   updatedAt: Date;
+  language?: SupportedLanguage;
 }
 
 const userSchema = new Schema<UserDocument>(
@@ -21,6 +23,11 @@ const userSchema = new Schema<UserDocument>(
     username: String,
     firstName: String,
     lastName: String,
+    language: {
+      type: String,
+      enum: ["ar", "ru", "en"],
+      required: false,
+    },
   },
   {
     timestamps: true,
