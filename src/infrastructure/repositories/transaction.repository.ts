@@ -35,6 +35,15 @@ export class TransactionRepository {
             .exec();
     }
 
+    async deleteLatestByUserId(
+        userId: Types.ObjectId
+    ): Promise<TransactionDocument | null> {
+        return TransactionModel.findOneAndDelete(
+            { userId },
+            { sort: { createdAt: -1 } }
+        ).exec();
+    }
+
   async getSummaryByUserId(userId: Types.ObjectId): Promise<TransactionSummary> {
     const result = await TransactionModel.aggregate<{
       totalIncome: number;

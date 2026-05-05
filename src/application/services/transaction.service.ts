@@ -38,4 +38,21 @@ export class TransactionService {
                 ...(data.note ? { note: data.note} : {}),
             });
     }
+
+    async deleteLastTransaction(telegramId: number): Promise<TransactionDocument> {
+        const user = await this.userRepository.findByTelegramId(telegramId);
+
+        if (!user) {
+            throw new Error("User not found. Please send /start first.");
+        }
+
+        const deletedTransaction =
+            await this.transactionRepository.deleteLatestByUserId(user._id);
+
+        if (!deletedTransaction) {
+            throw new Error("No transactions found to delete.");
+        }
+
+        return deletedTransaction;
+    }
 }
