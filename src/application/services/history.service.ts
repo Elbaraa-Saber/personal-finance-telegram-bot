@@ -8,16 +8,18 @@ export class HistoryService {
     private readonly userRepository: UserRepository
   ) {}
 
-  async getRecentTransactions(
-    telegramId: number,
-    limit = 5
-  ): Promise<TransactionDocument[]> {
-    const user = await this.userRepository.findByTelegramId(telegramId);
+    async getRecentTransactions(
+        telegramId: number,
+        limit = 5
+    ): Promise<TransactionDocument[]> {
+        const safeLimit = Math.min(Math.max(limit, 1), 20);
 
-    if (!user) {
-      throw new Error("User not found. Please send /start first.");
+        const user = await this.userRepository.findByTelegramId(telegramId);
+
+        if (!user) {
+            throw new Error("User not found. Please send /start first.");
+        }
+
+        return this.transactionRepository.findRecentByUserId(user._id, safeLimit);
     }
-
-    return this.transactionRepository.findRecentByUserId(user._id, limit);
-  }
 }

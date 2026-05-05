@@ -1,9 +1,9 @@
 import { Types } from "mongoose";
 import {
-    TransactionType,
-    TransactionModel,
-    TransactionDocument,
-} from "../database/models/transaction.model"
+  TransactionDocument,
+  TransactionModel,
+  TransactionType,
+} from "../database/models/transaction.model";
 
 type CreateTransactionData = {
   userId: Types.ObjectId;
@@ -11,7 +11,7 @@ type CreateTransactionData = {
   amount: number;
   category: string;
   note?: string;
-}
+};
 
 export type TransactionSummary = {
   totalIncome: number;
@@ -20,63 +20,98 @@ export type TransactionSummary = {
   transactionCount: number;
 };
 
+type AggregatedTransactionSummary = {
+  totalIncome: number;
+  totalExpense: number;
+  transactionCount: number;
+};
+
 export class TransactionRepository {
   async create(data: CreateTransactionData): Promise<TransactionDocument> {
     return TransactionModel.create(data);
   }
 
-    async findRecentByUserId(
-        userId: Types.ObjectId,
-        limit: number
-    ): Promise<TransactionDocument[]> {
-        return TransactionModel.find({ userId })
-            .sort({ createdAt: -1 })
-            .limit(limit)
-            .exec();
-    }
+  async findRecentByUserId(
+    userId: Types.ObjectId,
+    limit: number
+  ): Promise<TransactionDocument[]> {
+    return TransactionModel.find({ userId })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
+  }
 
-    async deleteLatestByUserId(
-        userId: Types.ObjectId
-    ): Promise<TransactionDocument | null> {
-        return TransactionModel.findOneAndDelete(
-            { userId },
-            { sort: { createdAt: -1 } }
-        ).exec();
-    }
+  async deleteLatestByUserId(
+    userId: Types.ObjectId
+  ): Promise<TransactionDocument | null> {
+    return TransactionModel.findOneAndDelete(
+      { userId },
+      { sort: { createdAt: -1 } }
+    ).exec();
+  }
 
   async getSummaryByUserId(userId: Types.ObjectId): Promise<TransactionSummary> {
-    const result = await TransactionModel.aggregate<{
-      totalIncome: number;
-      totalExpense: number;
-      transactionCount: number;
-    }>([
-      {
-        $match: {
-          userId,
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalIncome: {
-            $sum: {
-              $cond: [{ $eq: ["$type", "income"] }, "$amount", 0],
-            },
-          },
-          totalExpense: {
-            $sum: {
-              $cond: [{ $eq: ["$type", "expense"] }, "$amount", 0],
-            },
-          },
-          transactionCount: {
-            $sum: 1,
+    const result = await TransactionModel.aggregate<AggregatedTransactionSummary>(
+      [
+        {
+          $match: {
+            userId,
           },
         },
+        this.createSummaryGroupStage(),
+      ]
+    );
+
+    return this.toTransactionSummary(result[0]);
+  }
+
+  async getSummaryByUserIdAndDateRange(
+    userId: Types.ObjectId,
+    startDate: Date,
+    endDate: Date
+  ): Promise<TransactionSummary> {
+    const result = await TransactionModel.aggregate<AggregatedTransactionSummary>(
+      [
+        {
+          $match: {
+            userId,
+            createdAt: {
+              $gte: startDate,
+              $lt: endDate,
+            },
+          },
+        },
+        this.createSummaryGroupStage(),
+      ]
+    );
+
+    return this.toTransactionSummary(result[0]);
+  }
+
+  private createSummaryGroupStage() {
+    return {
+      $group: {
+        _id: null,
+        totalIncome: {
+          $sum: {
+            $cond: [{ $eq: ["$type", "income"] }, "$amount", 0],
+          },
+        },
+        totalExpense: {
+          $sum: {
+            $cond: [{ $eq: ["$type", "expense"] }, "$amount", 0],
+          },
+        },
+        transactionCount: {
+          $sum: 1,
+        },
       },
-    ]);
+    };
+  }
 
-    const summary = result[0];
-
+  private toTransactionSummary(
+    summary: AggregatedTransactionSummary | undefined
+  ): TransactionSummary {
     if (!summary) {
       return {
         totalIncome: 0,
@@ -92,5 +127,5 @@ export class TransactionRepository {
       balance: summary.totalIncome - summary.totalExpense,
       transactionCount: summary.transactionCount,
     };
-}
+  }
 }

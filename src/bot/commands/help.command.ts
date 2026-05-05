@@ -22,7 +22,19 @@ const helpMessage = `
 /expense 250 food lunch
 
 /report
-عرض إجمالي الدخل والمصروف والرصيد
+عرض التقرير الكامل
+
+/report_day
+عرض تقرير اليوم
+
+/report_week
+عرض تقرير الأسبوع الحالي
+
+/report_month
+عرض تقرير الشهر الحالي
+
+/report_year
+عرض تقرير السنة الحالية
 
 /history
 عرض آخر العمليات

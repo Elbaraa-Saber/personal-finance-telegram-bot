@@ -1,8 +1,44 @@
-import { Bot } from "grammy";
-import { ReportService } from "../../application/services/report.service";
+import { Bot, Context } from "grammy";
+import {
+  ReportPeriod,
+  ReportService,
+} from "../../application/services/report.service";
 
 function formatAmount(amount: number): string {
   return amount.toFixed(2);
+}
+
+async function replyWithReport(
+  ctx: Context,
+  reportService: ReportService,
+  period: ReportPeriod
+): Promise<void> {
+  const telegramUser = ctx.from;
+
+  if (!telegramUser) {
+    await ctx.reply("لم أستطع قراءة بيانات المستخدم.");
+    return;
+  }
+
+  try {
+    const report = await reportService.getUserSummaryForPeriod(
+      telegramUser.id,
+      period
+    );
+
+    await ctx.reply(
+      `${report.title}\n\n` +
+        `إجمالي الدخل: ${formatAmount(report.totalIncome)}\n` +
+        `إجمالي المصروف: ${formatAmount(report.totalExpense)}\n` +
+        `الرصيد: ${formatAmount(report.balance)}\n` +
+        `عدد العمليات: ${report.transactionCount}`
+    );
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "حدث خطأ غير متوقع.";
+
+    await ctx.reply(`❌ ${message}`);
+  }
 }
 
 export function registerReportCommand(
@@ -10,28 +46,22 @@ export function registerReportCommand(
   reportService: ReportService
 ): void {
   bot.command("report", async (ctx) => {
-    const telegramUser = ctx.from;
+    await replyWithReport(ctx, reportService, "all");
+  });
 
-    if (!telegramUser) {
-      await ctx.reply("لم أستطع قراءة بيانات المستخدم.");
-      return;
-    }
+  bot.command("report_day", async (ctx) => {
+    await replyWithReport(ctx, reportService, "day");
+  });
 
-    try {
-      const summary = await reportService.getUserSummary(telegramUser.id);
+  bot.command("report_week", async (ctx) => {
+    await replyWithReport(ctx, reportService, "week");
+  });
 
-      await ctx.reply(
-        "📊 تقريرك الحالي\n\n" +
-          `إجمالي الدخل: ${formatAmount(summary.totalIncome)}\n` +
-          `إجمالي المصروف: ${formatAmount(summary.totalExpense)}\n` +
-          `الرصيد: ${formatAmount(summary.balance)}\n` +
-          `عدد العمليات: ${summary.transactionCount}`
-      );
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "حدث خطأ غير متوقع.";
+  bot.command("report_month", async (ctx) => {
+    await replyWithReport(ctx, reportService, "month");
+  });
 
-      await ctx.reply(`❌ ${message}`);
-    }
+  bot.command("report_year", async (ctx) => {
+    await replyWithReport(ctx, reportService, "year");
   });
 }
