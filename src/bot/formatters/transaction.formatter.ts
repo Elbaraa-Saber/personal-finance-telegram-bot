@@ -34,3 +34,20 @@ export function formatDeletedTransaction(
     noteText
   );
 }
+
+export function formatCreatedTransaction(
+  transaction: TransactionDocument
+): string {
+  const label = transaction.type === "income" ? "دخل" : "مصروف";
+  const noteText = transaction.note
+    ? `\n📝 الملاحظة: ${transaction.note}`
+    : "";
+
+  return (
+    `✅ تم إضافة ${label} بنجاح\n\n` +
+    `💰 المبلغ: ${formatAmount(transaction.amount)}\n` +
+    `🏷 التصنيف: ${transaction.category}\n` +
+    `📅 التاريخ: ${formatDate(transaction.transactionDate)}` +
+    noteText
+  );
+}

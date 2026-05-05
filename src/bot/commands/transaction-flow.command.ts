@@ -3,6 +3,7 @@ import { TransactionService } from "../../application/services/transaction.servi
 import { TransactionType } from "../../infrastructure/database/models/transaction.model";
 import { BotContext } from "../context";
 import { mainMenuButtons } from "../keyboards/main-menu.keyboard";
+import { formatCreatedTransaction } from "../formatters/transaction.formatter";
 
 function parseAmount(text: string): number | null {
   const amount = Number(text.replace(",", "."));
@@ -219,11 +220,7 @@ export function registerTransactionFlowCommand(
 
         ctx.session.pendingTransaction = null;
 
-        await ctx.reply(
-          `✅ تم إضافة ${getTransactionLabel(transaction.type)} بنجاح\n\n` +
-            `المبلغ: ${transaction.amount.toFixed(2)}\n` +
-            `التصنيف: ${transaction.category}`
-        );
+        await ctx.reply(formatCreatedTransaction(transaction));
       } catch (error) {
         ctx.session.pendingTransaction = null;
 
