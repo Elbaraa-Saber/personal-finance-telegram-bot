@@ -1,4 +1,4 @@
-import { Bot, Context } from "grammy";
+import { Bot } from "grammy";
 import { TransactionService } from "../../application/services/transaction.service";
 import { TransactionDocument } from "../../infrastructure/database/models/transaction.model";
 import { mainMenuButtons } from "../keyboards/main-menu.keyboard";
@@ -7,16 +7,17 @@ import {
   deleteConfirmationCallbacks,
 } from "../keyboards/delete-confirmation.keyboard";
 import { formatDeletedTransaction } from "../formatters/transaction.formatter";
+import { BotContext } from "../context";
 
 
-async function askDeleteConfirmation(ctx: Context): Promise<void> {
+async function askDeleteConfirmation(ctx: BotContext): Promise<void> {
   await ctx.reply("هل أنت متأكد أنك تريد حذف آخر عملية؟", {
     reply_markup: createDeleteConfirmationKeyboard(),
   });
 }
 
 export function registerDeleteLastCommand(
-  bot: Bot,
+  bot: Bot<BotContext>,
   transactionService: TransactionService
 ): void {
   bot.command("delete_last", async (ctx) => {

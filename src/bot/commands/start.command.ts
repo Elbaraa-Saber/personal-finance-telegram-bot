@@ -1,6 +1,7 @@
 import { Bot } from "grammy";
 import { UserService } from "../../application/services/user.service";
 import { createMainMenuKeyboard } from "../keyboards/main-menu.keyboard";
+import { BotContext } from "../context";
 
 type RegisterTelegramUserData = {
   telegramId: number;
@@ -9,7 +10,7 @@ type RegisterTelegramUserData = {
   lastName?: string;
 };
 
-export function registerStartCommand(bot: Bot, userService: UserService): void {
+export function registerStartCommand(bot: Bot<BotContext>, userService: UserService): void {
   bot.command("start", async (ctx) => {
     const telegramUser = ctx.from;
 

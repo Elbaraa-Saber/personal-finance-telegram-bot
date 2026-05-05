@@ -1,6 +1,7 @@
 import { Bot } from "grammy";
 import { createMainMenuKeyboard } from "../keyboards/main-menu.keyboard";
 import { config } from "../../config/env";
+import { BotContext } from "../context";
 
 function createHelpMessage(): string{
   return`
@@ -82,7 +83,7 @@ ____________________________________________________
 `.trim();
 }
 
-export function registerHelpCommand(bot: Bot): void {
+export function registerHelpCommand(bot: Bot<BotContext>): void {
   bot.command("help", async (ctx) => {
     await ctx.reply(createHelpMessage(), {
       reply_markup: createMainMenuKeyboard(),

@@ -1,6 +1,8 @@
 import { Keyboard } from "grammy";
 
 export const mainMenuButtons = {
+  addIncome: "➕ إضافة دخل",
+  addExpense: "➖ إضافة مصروف",
   reportAll: "📊 التقرير الكامل",
   reportDay: "📅 تقرير اليوم",
   reportWeek: "📆 تقرير الأسبوع",
@@ -13,6 +15,9 @@ export const mainMenuButtons = {
 
 export function createMainMenuKeyboard(): Keyboard {
   return new Keyboard()
+    .text(mainMenuButtons.addIncome)
+    .text(mainMenuButtons.addExpense)
+    .row()
     .text(mainMenuButtons.reportAll)
     .text(mainMenuButtons.reportDay)
     .row()
@@ -22,7 +27,8 @@ export function createMainMenuKeyboard(): Keyboard {
     .text(mainMenuButtons.reportYear)
     .text(mainMenuButtons.history)
     .row()
-    .text(mainMenuButtons.help)
     .text(mainMenuButtons.deleteLast)
+    .row()
+    .text(mainMenuButtons.help)
     .resized();
 }

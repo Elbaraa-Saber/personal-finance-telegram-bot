@@ -4,6 +4,7 @@ import {
   ReportService,
 } from "../../application/services/report.service";
 import { formatReport } from "../formatters/report.formatter";
+import { BotContext } from "../context";
 
 async function replyWithReport(
   ctx: Context,
@@ -33,7 +34,7 @@ async function replyWithReport(
 }
 
 export function registerReportCommand(
-  bot: Bot,
+  bot: Bot<BotContext>,
   reportService: ReportService
 ): void {
   bot.command("report", async (ctx) => {

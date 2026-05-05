@@ -7,6 +7,7 @@ import { HistoryService } from "../../application/services/history.service";
 import { mainMenuButtons } from "../keyboards/main-menu.keyboard";
 import { formatReport } from "../formatters/report.formatter";
 import { formatTransactionLine } from "../formatters/transaction.formatter";
+import { BotContext } from "../context";
 
 async function replyWithReport(
   ctx: Context,
@@ -71,7 +72,7 @@ async function replyWithRecentHistory(
 }
 
 export function registerMenuCommandHandlers(
-  bot: Bot,
+  bot: Bot<BotContext>,
   reportService: ReportService,
   historyService: HistoryService
 ): void {

@@ -1,8 +1,9 @@
-import { Bot } from "grammy";
+import { session, Bot } from "grammy";
 import { SocksProxyAgent } from "socks-proxy-agent";
 import { config } from "../config/env";
+import { BotContext, createInitialSession } from "./context";
 
-export function createBot(): Bot {
+export function createBot(): Bot<BotContext> {
   const botOptions = config.useProxy
     ? {
         client: {
@@ -14,11 +15,16 @@ export function createBot(): Bot {
       }
     : undefined;
 
-  const bot = new Bot(config.botToken, botOptions as any);
+  const bot = new Bot<BotContext>(config.botToken, botOptions as any);
 
   bot.catch((error) => {
     console.error("❌ Bot error:", error);
   });
 
+  bot.use(
+    session({
+      initial: createInitialSession,
+    })
+  );
   return bot;
 }

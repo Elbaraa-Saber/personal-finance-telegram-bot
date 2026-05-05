@@ -1,6 +1,7 @@
 import { Bot } from "grammy";
 import { TransactionService } from "../../application/services/transaction.service";
 import { TransactionType } from "../../infrastructure/database/models/transaction.model";
+import { BotContext } from "../context";
 
 type ParsedTransactionCommand = {
   amount: number;
@@ -87,7 +88,7 @@ function parseTransactionCommand(text: string): ParsedTransactionCommand | null 
 }
 
 function registerTransactionCommand(
-  bot: Bot,
+  bot: Bot<BotContext>,
   command: "income" | "expense",
   type: TransactionType,
   transactionService: TransactionService
@@ -148,7 +149,7 @@ function registerTransactionCommand(
 }
 
 export function registerTransactionCommands(
-  bot: Bot,
+  bot: Bot<BotContext>,
   transactionService: TransactionService
 ): void {
   registerTransactionCommand(bot, "income", "income", transactionService);

@@ -6,6 +6,7 @@ import {
 import { TransactionDocument } from "../../infrastructure/database/models/transaction.model";
 import { formatDate } from "../formatters/date.formatter";
 import { formatTransactionLine } from "../formatters/transaction.formatter";
+import { BotContext } from "../context";
 
 type ParsedHistoryArgument =
   | { type: "default" }
@@ -123,7 +124,7 @@ async function replyWithPeriodHistory(
 }
 
 export function registerHistoryCommand(
-  bot: Bot,
+  bot: Bot<BotContext>,
   historyService: HistoryService
 ): void {
   bot.command("history", async (ctx) => {
