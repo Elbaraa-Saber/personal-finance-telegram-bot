@@ -31,6 +31,6 @@ This project is currently under active development.
 ## Installation
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
-cd YOUR_REPOSITORY_NAME
+git clone https://github.com/Elbaraa-Saber/personal-finance-telegram-bot.git
+cd personal-finance-telegram-bot
 npm install
