@@ -4,10 +4,13 @@ import {
   ReportService,
 } from "../../application/services/report.service";
 import { HistoryService } from "../../application/services/history.service";
-import { getMainMenuButtonTexts } from "../keyboards/main-menu.keyboard";
+import { createMainMenuKeyboard, getMainMenuButtonTexts } from "../keyboards/main-menu.keyboard";
 import { formatReport } from "../formatters/report.formatter";
 import { formatTransactionLine } from "../formatters/transaction.formatter";
 import { BotContext } from "../context";
+import { UserService } from "../../application/services/user.service";
+import { getMessages } from "../i18n/translations";
+import { config } from "../../config/env";
 
 async function replyWithReport(
   ctx: Context,
@@ -74,7 +77,8 @@ async function replyWithRecentHistory(
 export function registerMenuCommandHandlers(
   bot: Bot<BotContext>,
   reportService: ReportService,
-  historyService: HistoryService
+  historyService: HistoryService,
+  userService: UserService
 ): void {
   bot.hears(getMainMenuButtonTexts("reportAll"), async (ctx) => {
     await replyWithReport(ctx, reportService, "all");
@@ -100,7 +104,19 @@ export function registerMenuCommandHandlers(
     await replyWithRecentHistory(ctx, historyService);
   });
 
-    bot.hears(getMainMenuButtonTexts("help"), async (ctx) => {
-    await ctx.reply("اكتب /help | Введите /help | Type /help");
+   bot.hears(getMainMenuButtonTexts("help"), async (ctx) => {
+        const telegramUser = ctx.from;
+
+        if (!telegramUser) {
+            await ctx.reply("لم أستطع قراءة بيانات المستخدم.");
+            return;
+        }
+
+        const language = await userService.getUserLanguage(telegramUser.id);
+        const messages = getMessages(language);
+
+        await ctx.reply(messages.help.text(config.defaultCurrency), {
+            reply_markup: createMainMenuKeyboard(language),
+        });
     });
 }
