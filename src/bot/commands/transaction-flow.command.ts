@@ -4,6 +4,11 @@ import { TransactionType } from "../../infrastructure/database/models/transactio
 import { BotContext } from "../context";
 import { mainMenuButtons } from "../keyboards/main-menu.keyboard";
 import { formatCreatedTransaction } from "../formatters/transaction.formatter";
+import { createMainMenuKeyboard } from "../keyboards/main-menu.keyboard";
+import {
+  cancelFlowButton,
+  createCancelFlowKeyboard,
+} from "../keyboards/cancel-flow.keyboard";
 
 function parseAmount(text: string): number | null {
   const amount = Number(text.replace(",", "."));
@@ -66,8 +71,26 @@ async function startTransactionFlow(
   await ctx.reply(
     `حسنًا، سنضيف ${getTransactionLabel(type)}.\n\n` +
       "اكتب المبلغ فقط، مثال:\n" +
-      "1500"
+      "1500",
+    {
+        reply_markup: createCancelFlowKeyboard(),
+    }
   );
+}
+
+async function cancelTransactionFlow(ctx: BotContext): Promise<void> {
+  if (!ctx.session.pendingTransaction) {
+    await ctx.reply("لا توجد عملية جارية لإلغائها.", {
+      reply_markup: createMainMenuKeyboard(),
+    });
+    return;
+  }
+
+  ctx.session.pendingTransaction = null;
+
+  await ctx.reply("تم إلغاء العملية الحالية.", {
+    reply_markup: createMainMenuKeyboard(),
+  });
 }
 
 export function registerTransactionFlowCommand(
@@ -83,14 +106,11 @@ export function registerTransactionFlowCommand(
   });
 
   bot.command("cancel", async (ctx) => {
-    if (!ctx.session.pendingTransaction) {
-      await ctx.reply("لا توجد عملية جارية لإلغائها.");
-      return;
-    }
+    await cancelTransactionFlow(ctx);
+  });
 
-    ctx.session.pendingTransaction = null;
-
-    await ctx.reply("تم إلغاء العملية الحالية.");
+  bot.hears(cancelFlowButton, async (ctx) => {
+        await cancelTransactionFlow(ctx);
   });
 
   bot.on("message:text", async (ctx, next) => {
@@ -117,7 +137,10 @@ export function registerTransactionFlowCommand(
           "المبلغ غير صحيح.\n\n" +
             "اكتب رقمًا أكبر من صفر، مثال:\n" +
             "1500\n\n" +
-            "أو اكتب /cancel للإلغاء."
+            "أو اكتب /cancel للإلغاء.",
+            {
+                reply_markup: createCancelFlowKeyboard(),
+            }
         );
         return;
       }
@@ -132,7 +155,10 @@ export function registerTransactionFlowCommand(
         "اكتب التصنيف، مثال:\n" +
           "salary\n" +
           "food\n" +
-          "transport"
+          "transport",
+            {
+                reply_markup: createCancelFlowKeyboard(),
+            }
       );
       return;
     }
@@ -152,7 +178,10 @@ export function registerTransactionFlowCommand(
       await ctx.reply(
         "اكتب تاريخ العملية بصيغة YYYY-MM-DD، مثال:\n" +
           "2026-05-05\n\n" +
-          "أو اكتب - لاستخدام تاريخ اليوم."
+          "أو اكتب - لاستخدام تاريخ اليوم.",
+            {
+                reply_markup: createCancelFlowKeyboard(),
+            }
       );
       return;
     }
@@ -165,7 +194,10 @@ export function registerTransactionFlowCommand(
         };
 
         await ctx.reply(
-          "اكتب ملاحظة للعملية، أو اكتب - بدون ملاحظة."
+          "اكتب ملاحظة للعملية، أو اكتب - بدون ملاحظة.",
+            {
+                reply_markup: createCancelFlowKeyboard(),
+            }
         );
         return;
       }
@@ -220,15 +252,18 @@ export function registerTransactionFlowCommand(
 
         ctx.session.pendingTransaction = null;
 
-        await ctx.reply(formatCreatedTransaction(transaction));
+        await ctx.reply(formatCreatedTransaction(transaction), {
+            reply_markup: createMainMenuKeyboard(),
+        });
       } catch (error) {
         ctx.session.pendingTransaction = null;
 
         const message =
           error instanceof Error ? error.message : "حدث خطأ غير متوقع.";
 
-        await ctx.reply(`❌ ${message}`);
-      }
+        await ctx.reply(`❌ ${message}`, {
+            reply_markup: createMainMenuKeyboard(),
+        });      }
     }
   });
 }
