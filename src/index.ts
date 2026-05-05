@@ -11,6 +11,7 @@ import { ReportService } from "./application/services/report.service";
 import { registerHistoryCommand } from "./bot/commands/history.command";
 import { HistoryService } from "./application/services/history.service";
 import { registerDeleteLastCommand } from "./bot/commands/delete-last.command";
+import { registerHelpCommand } from "./bot/commands/help.command";
 
 async function main(): Promise<void> {
   await connectToDatabase();
@@ -36,12 +37,12 @@ async function main(): Promise<void> {
     userRepository
   );
 
-
   registerStartCommand(bot, userService);
   registerTransactionCommands(bot, transactionService);
   registerReportCommand(bot, reportService);
   registerHistoryCommand(bot, historyService);
   registerDeleteLastCommand(bot, transactionService);
+  registerHelpCommand(bot);
 
   bot.start({
     onStart: () => {
