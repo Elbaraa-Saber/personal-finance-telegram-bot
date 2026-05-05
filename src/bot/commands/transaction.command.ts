@@ -6,14 +6,43 @@ type ParsedTransactionCommand = {
   amount: number;
   category: string;
   note?: string;
+  transactionDate?: Date;
 };
+
+function isDateText(text: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(text);
+}
+
+function parseDate(text: string): Date | null {
+  const parts = text.split("-");
+
+  const year = Number(parts[0]);
+  const month = Number(parts[1]);
+  const day = Number(parts[2]);
+
+  if (
+    !Number.isInteger(year) ||
+    !Number.isInteger(month) ||
+    !Number.isInteger(day)
+  ) {
+    return null;
+  }
+
+  const date = new Date(year, month - 1, day);
+
+  const isValidDate =
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day;
+
+  return isValidDate ? date : null;
+}
 
 function parseTransactionCommand(text: string): ParsedTransactionCommand | null {
   const parts = text.trim().split(/\s+/);
 
   const amountText = parts[1];
   const category = parts[2];
-  const noteParts = parts.slice(3);
 
   if (!amountText || !category) {
     return null;
@@ -24,6 +53,27 @@ function parseTransactionCommand(text: string): ParsedTransactionCommand | null 
   if (Number.isNaN(amount) || amount <= 0) {
     return null;
   }
+
+  const possibleDate = parts[3];
+
+  if (possibleDate && isDateText(possibleDate)) {
+    const transactionDate = parseDate(possibleDate);
+
+    if (!transactionDate) {
+      return null;
+    }
+
+    const noteParts = parts.slice(4);
+
+    return {
+      amount,
+      category,
+      transactionDate,
+      ...(noteParts.length > 0 ? { note: noteParts.join(" ") } : {}),
+    };
+  }
+
+  const noteParts = parts.slice(3);
 
   return {
     amount,
@@ -72,6 +122,9 @@ function registerTransactionCommand(
         amount: parsed.amount,
         category: parsed.category,
         ...(parsed.note ? { note: parsed.note } : {}),
+        ...(parsed.transactionDate
+            ? { transactionDate: parsed.transactionDate }
+            : {}),
       });
 
       const label = type === "income" ? "دخل" : "مصروف";

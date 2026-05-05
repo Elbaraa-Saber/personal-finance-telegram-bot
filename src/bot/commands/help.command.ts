@@ -11,18 +11,24 @@ const helpMessage = `
 /help
 عرض هذه المساعدة
 
-/income (amount) (category)
+/income (amount) (category) (history) (note) 
 إضافة دخل
 مثال:
-/income 5000 salary
+/income 5000 salary 2026-05-05
 
-/expense (amount) (category)
+/expense (amount) (category) (history) (note)
 إضافة مصروف
 مثال:
-/expense 250 food lunch
+/expense 250 food lunch 2026-05-05 lunch with friends
 
 /report
 عرض التقرير الكامل
+
+- التاريخ اختياري.
+- إذا لم تكتب التاريخ، سيتم استخدام تاريخ اليوم تلقائيًا.
+- صيغة التاريخ: YYYY-MM-DD
+- الملاحظة اختيارية أيضا
+
 
 /report_day
 عرض تقرير اليوم

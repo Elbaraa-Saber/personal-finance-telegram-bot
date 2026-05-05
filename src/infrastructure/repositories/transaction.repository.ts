@@ -11,6 +11,7 @@ type CreateTransactionData = {
   amount: number;
   category: string;
   note?: string;
+  transactionDate?: Date;
 };
 
 export type TransactionSummary = {
@@ -32,14 +33,14 @@ export class TransactionRepository {
   }
 
   async findRecentByUserId(
-    userId: Types.ObjectId,
-    limit: number
-  ): Promise<TransactionDocument[]> {
-    return TransactionModel.find({ userId })
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .exec();
-  }
+        userId: Types.ObjectId,
+        limit: number
+    ): Promise<TransactionDocument[]> {
+        return TransactionModel.find({ userId })
+            .sort({ transactionDate: -1, createdAt: -1 })
+            .limit(limit)
+            .exec();
+    }
 
   async deleteLatestByUserId(
     userId: Types.ObjectId
@@ -65,28 +66,28 @@ export class TransactionRepository {
     return this.toTransactionSummary(result[0]);
   }
 
-  async getSummaryByUserIdAndDateRange(
-    userId: Types.ObjectId,
-    startDate: Date,
-    endDate: Date
-  ): Promise<TransactionSummary> {
-    const result = await TransactionModel.aggregate<AggregatedTransactionSummary>(
-      [
-        {
-          $match: {
-            userId,
-            createdAt: {
-              $gte: startDate,
-              $lt: endDate,
+    async getSummaryByUserIdAndDateRange(
+        userId: Types.ObjectId,
+        startDate: Date,
+        endDate: Date
+    ): Promise<TransactionSummary> {
+        const result = await TransactionModel.aggregate<AggregatedTransactionSummary>(
+            [
+            {
+                $match: {
+                userId,
+                transactionDate: {
+                    $gte: startDate,
+                    $lt: endDate,
+                },
+                },
             },
-          },
-        },
-        this.createSummaryGroupStage(),
-      ]
-    );
+            this.createSummaryGroupStage(),
+            ]
+        );
 
-    return this.toTransactionSummary(result[0]);
-  }
+        return this.toTransactionSummary(result[0]);
+    }
 
   private createSummaryGroupStage() {
     return {

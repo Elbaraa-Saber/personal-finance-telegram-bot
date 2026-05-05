@@ -6,16 +6,23 @@ function formatAmount(amount: number): string {
   return amount.toFixed(2);
 }
 
-function formatTransaction(transaction: TransactionDocument, index: number): string {
+function formatDate(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function formatTransaction(
+  transaction: TransactionDocument,
+  index: number
+): string {
   const icon = transaction.type === "income" ? "💰" : "💸";
   const label = transaction.type === "income" ? "دخل" : "مصروف";
-
   const noteText = transaction.note ? `\n   ملاحظة: ${transaction.note}` : "";
 
   return (
     `${index + 1}. ${icon} ${label} | ` +
     `${formatAmount(transaction.amount)} | ` +
-    `${transaction.category}` +
+    `${transaction.category} | ` +
+    `${formatDate(transaction.transactionDate)}` +
     noteText
   );
 }

@@ -6,11 +6,12 @@ import {
 import { TransactionRepository } from "../../infrastructure/repositories/transaction.repository";
 
 type AddTransactionData = {
-    telegramId: number;
-    type: TransactionType;
-    amount: number;
-    category: string;
-    note?: string;
+  telegramId: number;
+  type: TransactionType;
+  amount: number;
+  category: string;
+  note?: string;
+  transactionDate?: Date;
 };
 
 export class TransactionService {
@@ -36,6 +37,7 @@ export class TransactionService {
                 amount: data.amount,
                 category: data.category,
                 ...(data.note ? { note: data.note} : {}),
+                ...(data.transactionDate ? { transactionDate: data.transactionDate } : {}),
             });
     }
 

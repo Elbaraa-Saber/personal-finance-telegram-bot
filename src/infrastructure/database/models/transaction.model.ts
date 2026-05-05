@@ -9,6 +9,7 @@ export interface TransactionDocument {
   amount: number;
   category: string;
   note?: string;
+  transactionDate: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,6 +40,12 @@ const transactionSchema = new Schema<TransactionDocument>(
     note: {
       type: String,
       trim: true,
+    },
+    transactionDate: {
+      type: Date,
+      required: true,
+      default: Date.now,
+      index: true,
     },
   },
   {
