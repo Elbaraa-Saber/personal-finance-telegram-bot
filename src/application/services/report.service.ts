@@ -1,4 +1,5 @@
 import {
+  CategorySummaryItem,
   TransactionRepository,
   TransactionSummary,
 } from "../../infrastructure/repositories/transaction.repository";
@@ -8,6 +9,9 @@ export type ReportPeriod = "all" | "day" | "week" | "month" | "year";
 
 export type ReportResult = TransactionSummary & {
   period: ReportPeriod;
+  startDate?: Date;
+  endDate?: Date;
+  categorySummary: CategorySummaryItem[];
 };
 
 type DateRange = {
@@ -45,9 +49,12 @@ export class ReportService {
       const summary = await this.transactionRepository.getSummaryByUserId(
         user._id
       );
+      const categorySummary =
+        await this.transactionRepository.getCategorySummaryByUserId(user._id);
 
       return {
         period,
+        categorySummary,
         ...summary,
       };
     }
@@ -59,9 +66,18 @@ export class ReportService {
         dateRange.startDate,
         dateRange.endDate
       );
+    const categorySummary =
+      await this.transactionRepository.getCategorySummaryByUserIdAndDateRange(
+        user._id,
+        dateRange.startDate,
+        dateRange.endDate
+      );
 
     return {
       period,
+      startDate: dateRange.startDate,
+      endDate: dateRange.endDate,
+      categorySummary,
       ...summary,
     };
   }

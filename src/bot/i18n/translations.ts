@@ -3,6 +3,8 @@ import { defaultLanguage, SupportedLanguage } from "./language";
 export type MenuMessages = {
   addIncome: string;
   addExpense: string;
+  addFamilyExpense: string;
+  addPersonalExpense: string;
   reportAll: string;
   reportDay: string;
   reportWeek: string;
@@ -29,6 +31,11 @@ type ReportMessages = {
   totalExpense: string;
   balance: string;
   transactionCount: string;
+  incomeSection: string;
+  personalExpenseSection: string;
+  familyExpenseSection: string;
+  total: string;
+  noItems: string;
 };
 
 type TransactionMessages = {
@@ -169,6 +176,11 @@ export const translations: Record<SupportedLanguage, Messages> = {
         totalExpense: "إجمالي المصروف",
         balance: "الرصيد",
         transactionCount: "عدد العمليات",
+        incomeSection: "📈 الدخل:",
+        personalExpenseSection: "📉 المصروفات الشخصية:",
+        familyExpenseSection: "🏠 المصروفات الأسرية:",
+        total: "الإجمالي",
+        noItems: "لا توجد عمليات.",
     },
     transaction: {
         income: "دخل",
@@ -310,6 +322,8 @@ export const translations: Record<SupportedLanguage, Messages> = {
     menu: {
       addIncome: "➕ إضافة دخل",
       addExpense: "➖ إضافة مصروف",
+      addFamilyExpense: "🏠 إضافة مصروف أسري",
+      addPersonalExpense: "👤 إضافة مصروف شخصي",
       reportAll: "📊 التقرير الكامل",
       reportDay: "📅 تقرير اليوم",
       reportWeek: "📆 تقرير الأسبوع",
@@ -369,6 +383,11 @@ export const translations: Record<SupportedLanguage, Messages> = {
         totalExpense: "Общие расходы",
         balance: "Баланс",
         transactionCount: "Количество операций",
+        incomeSection: "📈 Доходы:",
+        personalExpenseSection: "📉 Личные расходы:",
+        familyExpenseSection: "🏠 Семейные расходы:",
+        total: "Итого",
+        noItems: "Нет операций.",
     },
 
     transaction: {
@@ -511,6 +530,8 @@ export const translations: Record<SupportedLanguage, Messages> = {
     menu: {
       addIncome: "➕ Добавить доход",
       addExpense: "➖ Добавить расход",
+      addFamilyExpense: "🏠 Добавить семейный расход",
+      addPersonalExpense: "👤 Добавить личный расход",
       reportAll: "📊 Общий отчёт",
       reportDay: "📅 Отчёт за день",
       reportWeek: "📆 Отчёт за неделю",
@@ -570,6 +591,11 @@ export const translations: Record<SupportedLanguage, Messages> = {
         totalExpense: "Total expense",
         balance: "Balance",
         transactionCount: "Transaction count",
+        incomeSection: "📈 Income:",
+        personalExpenseSection: "📉 Personal expenses:",
+        familyExpenseSection: "🏠 Family expenses:",
+        total: "Total",
+        noItems: "No transactions.",
     },
     transaction: {
         income: "Income",
@@ -710,6 +736,8 @@ export const translations: Record<SupportedLanguage, Messages> = {
     menu: {
       addIncome: "➕ Add income",
       addExpense: "➖ Add expense",
+      addFamilyExpense: "🏠 Add family expense",
+      addPersonalExpense: "👤 Add personal expense",
       reportAll: "📊 Full report",
       reportDay: "📅 Day report",
       reportWeek: "📆 Week report",

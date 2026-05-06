@@ -15,7 +15,9 @@ export function createMainMenuKeyboard(
 
   return new Keyboard()
     .text(menu.addIncome)
-    .text(menu.addExpense)
+    .row()
+    .text(menu.addFamilyExpense)
+    .text(menu.addPersonalExpense)
     .row()
     .text(menu.reportDay)
     .text(menu.moreReports)

@@ -1,6 +1,6 @@
 import { Bot } from "grammy";
 import { TransactionService } from "../../application/services/transaction.service";
-import { TransactionType } from "../../infrastructure/database/models/transaction.model";
+import { TransactionScope, TransactionType } from "../../infrastructure/database/models/transaction.model";
 import { BotContext } from "../context";
 import { UserService } from "../../application/services/user.service";
 import {
@@ -138,7 +138,8 @@ async function getLanguageForContext(
 async function startTransactionFlow(
   ctx: BotContext,
   type: TransactionType,
-  userService: UserService
+  userService: UserService,
+  scope?: TransactionScope
 ): Promise<void> {
   const telegramUser = ctx.from;
 
@@ -153,6 +154,7 @@ async function startTransactionFlow(
 
   ctx.session.pendingTransaction = {
     type,
+    ...(scope ? { scope } : {}),
   };
 
   await ctx.reply(messages.transactionFlow.start(label), {
@@ -213,8 +215,12 @@ export function registerTransactionFlowCommand(
     await startTransactionFlow(ctx, "income", userService);
   });
 
-  bot.hears(getMainMenuButtonTexts("addExpense"), async (ctx) => {
-    await startTransactionFlow(ctx, "expense", userService);
+  bot.hears(getMainMenuButtonTexts("addFamilyExpense"), async (ctx) => {
+    await startTransactionFlow(ctx, "expense", userService, "family");
+  });
+
+  bot.hears(getMainMenuButtonTexts("addPersonalExpense"), async (ctx) => {
+    await startTransactionFlow(ctx, "expense", userService, "personal");
   });
 
   bot.command("cancel", async (ctx) => {
@@ -269,6 +275,7 @@ export function registerTransactionFlowCommand(
       const transaction = await transactionService.addTransaction({
         telegramId: telegramUser.id,
         type: pendingTransaction.type,
+        ...(pendingTransaction.scope ? { scope: pendingTransaction.scope } : {}),
         amount: parsedTransaction.amount,
         category: parsedTransaction.category,
         ...(parsedTransaction.note ? { note: parsedTransaction.note } : {}),

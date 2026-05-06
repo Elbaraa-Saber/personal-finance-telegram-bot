@@ -3,11 +3,13 @@ import {
   TransactionDocument,
   TransactionModel,
   TransactionType,
+  TransactionScope,
 } from "../database/models/transaction.model";
 
 type CreateTransactionData = {
   userId: Types.ObjectId;
   type: TransactionType;
+  scope?: TransactionScope;
   amount: number;
   category: string;
   transactionDate: Date;
@@ -25,6 +27,22 @@ type AggregatedTransactionSummary = {
   totalIncome: number;
   totalExpense: number;
   transactionCount: number;
+};
+
+export type CategorySummaryItem = {
+  type: TransactionType;
+  scope?: TransactionScope;
+  category: string;
+  total: number;
+};
+
+type AggregatedCategorySummary = {
+  _id: {
+    type: TransactionType;
+    scope?: TransactionScope;
+    category: string;
+  };
+  total: number;
 };
 
 export class TransactionRepository {
@@ -89,6 +107,27 @@ export class TransactionRepository {
       return this.toTransactionSummary(result[0]);
   }
 
+
+  async getCategorySummaryByUserId(
+    userId: Types.ObjectId
+  ): Promise<CategorySummaryItem[]> {
+    return this.getCategorySummary({ userId });
+  }
+
+  async getCategorySummaryByUserIdAndDateRange(
+    userId: Types.ObjectId,
+    startDate: Date,
+    endDate: Date
+  ): Promise<CategorySummaryItem[]> {
+    return this.getCategorySummary({
+      userId,
+      transactionDate: {
+        $gte: startDate,
+        $lt: endDate,
+      },
+    });
+  }
+
   async findByUserIdAndDateRange(
   userId: Types.ObjectId,
   startDate: Date,
@@ -105,6 +144,41 @@ export class TransactionRepository {
     .sort({ transactionDate: -1, createdAt: -1 })
     .limit(limit)
     .exec();
+  }
+
+
+  private async getCategorySummary(match: Record<string, unknown>): Promise<CategorySummaryItem[]> {
+    const result = await TransactionModel.aggregate<AggregatedCategorySummary>([
+      {
+        $match: match,
+      },
+      {
+        $group: {
+          _id: {
+            type: "$type",
+            scope: { $ifNull: ["$scope", "family"] },
+            category: "$category",
+          },
+          total: {
+            $sum: "$amount",
+          },
+        },
+      },
+      {
+        $sort: {
+          "_id.type": 1,
+          "_id.scope": 1,
+          "_id.category": 1,
+        },
+      },
+    ]);
+
+    return result.map((item) => ({
+      type: item._id.type,
+      ...(item._id.scope ? { scope: item._id.scope } : {}),
+      category: item._id.category,
+      total: item.total,
+    }));
   }
 
   private createSummaryGroupStage() {

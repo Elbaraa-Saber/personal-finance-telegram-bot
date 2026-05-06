@@ -1,8 +1,9 @@
 import { Context, SessionFlavor } from "grammy";
-import { TransactionType } from "../infrastructure/database/models/transaction.model";
+import { TransactionScope, TransactionType } from "../infrastructure/database/models/transaction.model";
 
 export type PendingTransaction = {
   type: TransactionType;
+  scope?: TransactionScope;
 };
 
 export type SessionData = {

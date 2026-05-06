@@ -2,6 +2,7 @@ import { Bot } from "grammy";
 import { TransactionService } from "../../application/services/transaction.service";
 import { UserService } from "../../application/services/user.service";
 import {
+  TransactionScope,
   TransactionType,
 } from "../../infrastructure/database/models/transaction.model";
 import { BotContext } from "../context";
@@ -10,6 +11,7 @@ import { getMessages } from "../i18n/translations";
 
 type ParsedTransactionInput = {
   type: TransactionType;
+  scope?: TransactionScope;
   amount: number;
   category: string;
   note?: string;
@@ -126,8 +128,16 @@ function parseShortcutTransaction(text: string): ParsedTransactionInput | null {
   }
 
   const type: TransactionType = sign === "+" ? "income" : "expense";
+  const parsedTransaction = parseTransactionParts(type, parts, 1, 2);
 
-  return parseTransactionParts(type, parts, 1, 2);
+  if (!parsedTransaction) {
+    return null;
+  }
+
+  return {
+    ...parsedTransaction,
+    ...(type === "expense" ? { scope: "family" as TransactionScope } : {}),
+  };
 }
 
 function isShortcutTransactionText(text: string): boolean {
@@ -157,6 +167,7 @@ async function handleParsedTransaction(
     const transaction = await transactionService.addTransaction({
       telegramId: telegramUser.id,
       type: parsedTransaction.type,
+      ...(parsedTransaction.scope ? { scope: parsedTransaction.scope } : {}),
       amount: parsedTransaction.amount,
       category: parsedTransaction.category,
       ...(parsedTransaction.note ? { note: parsedTransaction.note } : {}),

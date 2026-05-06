@@ -1,11 +1,13 @@
 import { model, Schema, Types } from "mongoose";
 
 export type TransactionType = "income" | "expense";
+export type TransactionScope = "personal" | "family";
 
 export interface TransactionDocument {
   _id: Types.ObjectId;
   userId: Types.ObjectId;
   type: TransactionType;
+  scope?: TransactionScope;
   amount: number;
   category: string;
   note?: string;
@@ -26,6 +28,13 @@ const transactionSchema = new Schema<TransactionDocument>(
       type: String,
       enum: ["income", "expense"],
       required: true,
+    },
+    scope: {
+      type: String,
+      enum: ["personal", "family"],
+      required: false,
+      default: "family",
+      index: true,
     },
     amount: {
       type: Number,

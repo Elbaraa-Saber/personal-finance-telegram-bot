@@ -1,6 +1,7 @@
 import { UserRepository } from "../../infrastructure/repositories/user.repository";
 import { 
     TransactionType,
+    TransactionScope,
     TransactionDocument 
 } from "../../infrastructure/database/models/transaction.model";
 import { TransactionRepository } from "../../infrastructure/repositories/transaction.repository";
@@ -8,6 +9,7 @@ import { TransactionRepository } from "../../infrastructure/repositories/transac
 type AddTransactionData = {
   telegramId: number;
   type: TransactionType;
+  scope?: TransactionScope;
   amount: number;
   category: string;
   note?: string;
@@ -41,6 +43,7 @@ export class TransactionService {
         return this.transactionRepository.create({
                 userId: user._id,
                 type: data.type,
+                ...(data.type === "expense" ? { scope: data.scope ?? "family" } : {}),
                 amount: data.amount,
                 category: data.category,
                 transactionDate: data.transactionDate ?? getTodayDateOnly(),
